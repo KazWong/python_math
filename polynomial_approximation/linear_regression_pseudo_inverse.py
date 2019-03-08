@@ -7,6 +7,8 @@ sample = 200
 sigma = 100000
 p_x = []
 p_y = []
+A = np.ndarray(shape=(0, 2))
+B = np.ndarray(shape=(0, 1))
 
 o_m = random.uniform(-20, 20)
 o_c = random.uniform(-20, 20)
@@ -14,25 +16,24 @@ o_c = random.uniform(-20, 20)
 for i in xrange(sample):
   p_x.append( random.uniform(-1000, 1000) )
   p_y.append( random.gauss(o_m * p_x[-1] + o_c, random.uniform(0, sigma)) )
+  A = np.append( A, np.array([1., p_x[-1]]) )
+  B = np.append( B, np.array(p_y[-1]) )
   
 o_x = np.linspace(-1100,1100,100)
 o_y = o_m*o_x+o_c
 
 
-a = 0.
-b = 0.
-mean_x = np.mean(p_x)
-mean_y = np.mean(p_y)
+A = A.reshape([-1, 2])
+B = B.reshape([-1, 1])
+A_t = A.transpose();
+A = np.linalg.inv(A_t.dot(A)).dot(A_t)
 
-for i in xrange(sample):
-  a = (p_x[i] - mean_x)*(p_y[i] - mean_y) + a
-  b = (p_x[i] - mean_x)*(p_x[i] - mean_x) + b
-
-m = a / b
-c = mean_y - m * mean_x
+a = A.dot(B)
+a0 = a[0]
+a1 = a[1]
 
 x = np.linspace(-1100,1100,100)
-y = m*x+c
+y = a1*x+a0
 
 
 plt.subplot(111)
