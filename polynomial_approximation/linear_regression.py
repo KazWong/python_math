@@ -1,44 +1,39 @@
-import math
-import numpy as np
 import random
+import numpy as np
 import matplotlib.pyplot as plt
+from ..plant.linear_gaussian import LinearGaussian
 
-sample = 200
-sigma = 100000
-p_x = []
-p_y = []
-
+resolution = 5
+time = 5
+sigma = 1.3
 o_m = random.uniform(-20, 20)
 o_c = random.uniform(-20, 20)
-
-for i in xrange(sample):
-  p_x.append( random.uniform(-1000, 1000) )
-  p_y.append( random.gauss(o_m * p_x[-1] + o_c, random.uniform(0, sigma)) )
+p_x, p_y = LinearGaussian(resolution, sigma, o_m, o_c).Offline(time)
   
-o_x = np.linspace(-1100,1100,100)
-o_y = o_m*o_x+o_c
-
-
+  
 a = 0.
 b = 0.
 mean_x = np.mean(p_x)
 mean_y = np.mean(p_y)
 
-for i in xrange(sample):
+for i in xrange(len(p_x)):
   a = (p_x[i] - mean_x)*(p_y[i] - mean_y) + a
   b = (p_x[i] - mean_x)*(p_x[i] - mean_x) + b
 
 m = a / b
 c = mean_y - m * mean_x
 
-x = np.linspace(-1100,1100,100)
-y = m*x+c
 
+o_y = o_m*p_x+o_c
+y = m*p_x+c
+
+print o_m, o_c
+print m, c
 
 plt.subplot(111)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.scatter(p_x, p_y, c='g')
-plt.plot(x, y)
-plt.plot(o_x, o_y, 'r--')
+plt.plot(p_x, y)
+plt.plot(p_x, o_y, 'r--')
 plt.show()

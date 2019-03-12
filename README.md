@@ -13,4 +13,5 @@ algorithm or math experiments
   b. /scan scatter  
   c. random /cmd_vel  
   d. subscriber  
-6. Area of two overlapping rectangle
+6. Area of two overlapping rectangle  
+7. FFT
