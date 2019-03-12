@@ -1,22 +1,27 @@
 import numpy as np
 import random
 
-class DryAirGaussian:
-  def __init__(self, _resolution, _sigma, _length, _width, _height, _temperature):
-    self.sig = float(_sigma)
+class DryAir:
+  def __init__(self, _resolution, _volume, _temperature):
     self.re = float(_resolution)
-    self.l = float(_length)
-    self.w = float(_width)
-    self.h = float(_height)
+    self._volume = float(_volume)
     self.y = []
     self.t = []
-    self._Q = 0
-    self._T = _temperature
+    self._init_T = float(_temperature)
+    self._T = self._init_T
+    self._Q = 1.01325/( 287.058 * (273.16 + self._T) ) * self._volume * 1005. * (273.16 + self._T)
+    self._Q_new = self._Q
+    self.noise = 0
+    self.Reset()
     
-  def Model():
-    density = 1.01325/( 287.058 * (273.16 + self._T) )
-    volume = 
-    self._T = self._T - Q/()
+  def Model(self):
+    density = 1013.25/( 287.058 * (273.16 + self._T) )
+    print density
+    self._T = self._T - (self._Q_new - self._Q + self.noise)/(density * self._volume * 1005.)
+    print self._T
+    self._Q = self._Q_new
+    
+    return self._T
   
   def Offline(self, end_t):
     self.y = []
@@ -26,20 +31,18 @@ class DryAirGaussian:
     self.t = np.linspace(0., end_t, sample, endpoint=True)
     
     for i in xrange( len(self.t) ):
-      self.y.append( random.gauss(self.m * self.t[i] + self.c, random.uniform(0., self.sig)) )
+      self.y.append( self.Model() )
     
     return self.t, self.y
   
   def Reset(self):
-    self.y = []
+    self.y = [self._init_T]
     self.t = [0.]
+    self._T = self._init_T
   
-  def Read(self):
+  def Online(self, _Q):
+    self._Q_new = ( float(_Q) / self.re ) + self._Q_new # per second change
     self.t.append(self.t[-1] + 1./self.re)
-    self.y.append( random.gauss(self.m * self.t[-1] + self.c, random.uniform(0., self.sig)) )
+    self.y.append( self.Model() )
     
     return self.t[-1], self.y[-1]
-  
-  def Set(self, _m, _c):
-    self.m = float(_m)
-    self.c = float(_c)
