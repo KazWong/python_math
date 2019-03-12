@@ -1,27 +1,21 @@
-import math
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from ..plant.linear_gaussian import LinearGaussian
 
-sample = 200
-sigma = 100000
-p_x = []
-p_y = []
+resolution = 5
+time = 5
+sigma = 2
+o_m = random.uniform(-20, 20)
+o_c = random.uniform(-20, 20)
+p_x, p_y = LinearGaussian(resolution, sigma, o_m, o_c).Offline(time)
 A = np.ndarray(shape=(0, 2))
 B = np.ndarray(shape=(0, 1))
 
-o_m = random.uniform(-20, 20)
-o_c = random.uniform(-20, 20)
 
-for i in xrange(sample):
-  p_x.append( random.uniform(-1000, 1000) )
-  p_y.append( random.gauss(o_m * p_x[-1] + o_c, random.uniform(0, sigma)) )
-  A = np.append( A, np.array([1., p_x[-1]]) )
-  B = np.append( B, np.array(p_y[-1]) )
-  
-o_x = np.linspace(-1100,1100,100)
-o_y = o_m*o_x+o_c
-
+for i in xrange(len(p_x)):
+  A = np.append( A, np.array([1., p_x[i]]) )
+  B = np.append( B, np.array(p_y[i]) )
 
 A = A.reshape([-1, 2])
 B = B.reshape([-1, 1])
@@ -32,14 +26,17 @@ a = A.dot(B)
 a0 = a[0]
 a1 = a[1]
 
-x = np.linspace(-1100,1100,100)
-y = a1*x+a0
 
+y = a1*p_x+a0
+o_y = o_m*p_x+o_c
+
+print o_m, o_c
+print a1, a0
 
 plt.subplot(111)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.scatter(p_x, p_y, c='g')
-plt.plot(x, y)
-plt.plot(o_x, o_y, 'r--')
+plt.plot(p_x, y)
+plt.plot(p_x, o_y, 'r--')
 plt.show()
