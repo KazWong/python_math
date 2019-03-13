@@ -16,9 +16,7 @@ class DryAir:
     
   def Model(self):
     density = 1013.25/( 287.058 * (273.16 + self._T) )
-    print density
     self._T = self._T - (self._Q_new - self._Q + self.noise)/(density * self._volume * 1005.)
-    print self._T
     self._Q = self._Q_new
     
     return self._T
