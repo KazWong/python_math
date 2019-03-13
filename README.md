@@ -16,3 +16,8 @@ algorithm or math experiments
 6. Area of two overlapping rectangle  
 7. motion profile  
 8. FFT  
+9. Plant  
+  a. Dry Air  
+  b. Linear + Gaussian  
+10. Kalman Filter
+  a. Dry Air Temperature Estimate  
