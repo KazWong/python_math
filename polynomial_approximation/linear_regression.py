@@ -8,7 +8,7 @@ time = 5
 sigma = 1.3
 o_m = random.uniform(-20, 20)
 o_c = random.uniform(-20, 20)
-p_x, p_y = LinearGaussian(resolution, sigma, o_m, o_c).Offline(time)
+p_x, p_y = LinearGaussian(sigma, o_m, o_c).Offline(time, resolution)
   
   
 a = 0.

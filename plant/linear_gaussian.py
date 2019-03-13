@@ -1,37 +1,33 @@
 import numpy as np
 import random
+from disturbance import Disturbance
 
-class LinearGaussian:
-  def __init__(self, _resolution, _sigma, _m, _c):
+class LinearGaussian(Disturbance):
+  def __init__(self, _sigma, _m, _c):
+    super(LinearGaussian, self).__init__()
+  
     self.sig = float(_sigma)
-    self.re = float(_resolution)
     self.m = float(_m)
     self.c = float(_c)
-    self.y = []
-    self.t = []
+    self.t = 0.
   
-  def Offline(self, end_t):
-    self.y = []
-    self.t = []
-    
-    sample = float(end_t) * self.re;
-    self.t = np.linspace(0., end_t, sample, endpoint=True)
-    
-    for i in xrange( len(self.t) ):
-      self.y.append( random.gauss(self.m * self.t[i] + self.c, random.uniform(0., self.sig)) )
-    
-    return self.t, self.y
-  
-  def Reset(self):
-    self.y = []
-    self.t = [0.]
-  
-  def Read(self):
-    self.t.append(self.t[-1] + 1./self.re)
-    self.y.append( random.gauss(self.m * self.t[-1] + self.c, random.uniform(0., self.sig)) )
-    
-    return self.t[-1], self.y[-1]
-  
-  def Set(self, _m, _c):
+  def Reset(self, _m, _c):
     self.m = float(_m)
     self.c = float(_c)
+    
+  def Offline(self, end_t, sample_rate):
+    t = []
+    y = []
+    
+    sample = float(end_t) * sample_rate;
+    t = np.linspace(0., end_t, sample, endpoint=True)
+    
+    for i in xrange( len(t) ):
+      y.append( random.gauss(self.m * t[i] + self.c, self.sig) )
+    
+    return t, y
+  
+  def Online(self, t):
+    y = random.gauss(self.m * float(t) + self.c, self.sig) + self.disturbance.Online(t)
+
+    return y

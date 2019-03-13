@@ -8,7 +8,7 @@ time = 5
 sigma = 2
 o_m = random.uniform(-20, 20)
 o_c = random.uniform(-20, 20)
-p_x, p_y = LinearGaussian(resolution, sigma, o_m, o_c).Offline(time)
+p_x, p_y = LinearGaussian(sigma, o_m, o_c).Offline(time, resolution)
 A = np.ndarray(shape=(0, 2))
 B = np.ndarray(shape=(0, 1))
 
