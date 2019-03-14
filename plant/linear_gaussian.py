@@ -10,6 +10,9 @@ class LinearGaussian(Disturbance):
     self.m = float(_m)
     self.c = float(_c)
     self.t = 0.
+    
+  def Model(self, t):
+    return random.gauss(self.m * t + self.c, self.sig)
   
   def Reset(self, _m, _c):
     self.m = float(_m)
@@ -23,11 +26,11 @@ class LinearGaussian(Disturbance):
     t = np.linspace(0., end_t, sample, endpoint=True)
     
     for i in xrange( len(t) ):
-      y.append( random.gauss(self.m * t[i] + self.c, self.sig) )
+      y.append( self.Model(t[i]) )
     
     return t, y
   
   def Online(self, t):
-    y = random.gauss(self.m * float(t) + self.c, self.sig) + self.disturbance.Online(t)
+    y = self.Model(t) + self.disturbance.Online(t)
 
     return y

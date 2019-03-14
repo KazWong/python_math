@@ -5,7 +5,7 @@ from ..plant.linear_gaussian import LinearGaussian
 
 resolution = 5
 time = 5
-sigma = 2
+sigma = 1
 o_m = random.uniform(-20, 20)
 o_c = random.uniform(-20, 20)
 p_x, p_y = LinearGaussian(sigma, o_m, o_c).Offline(time, resolution)
