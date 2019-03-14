@@ -7,18 +7,19 @@ from ..plant.linear_gaussian import LinearGaussian
 
 vol = 1.
 init_temp = 25.
-plant = DryAir( 10, vol, init_temp, LinearGaussian(0., 0., 0.), LinearGaussian(0.6, 0., 0.) )
+sample_rate = 10.
+plant = DryAir( sample_rate, vol, init_temp, LinearGaussian(0., 0., 0.), LinearGaussian(0., 0., 0.) )
 
 A = [1.]
 X = [20.] # State
 P = [1.] # Process covariance matrix
-B = [1./(1005.*plant.Density(init_temp)*vol)]
-u = [0.] # control variable matrix
+B = [1./(1005.*plant.Density(init_temp)*vol*sample_rate)]
+u = [] # control variable matrix
 w = [0.] # Process noise
-Q = [0.] # Process noise covariance matrix
-R = [1.] # measurement error covariance matrix
+Q = [1./sample_rate] # Process noise covariance matrix
 Y = [] # Observation
-Z = [0.] # Measurement noise
+Z = [0.] # Observation noise
+R = [1.] # Observation noise covariance matrix
 K = [1.] # Kalman gain
 
 total_measurement = []
@@ -26,8 +27,8 @@ true_y = [25.]
 var = 0.
 
 #without error covariance
-for i in xrange(300):
-  u.append(1.)
+for i in xrange(200):
+  u.append(0.)
   t, y = plant.Online(u[-1])
   true_y.append( plant._T )
   
