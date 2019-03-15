@@ -19,5 +19,6 @@ algorithm or math experiments
 9. Plant  
   a. Dry Air  
   b. Linear + Gaussian  
+  c. Impulse
 10. Kalman Filter
-  a. Dry Air Temperature Estimate  
+  a. Simple Filter  
