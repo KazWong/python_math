@@ -56,7 +56,7 @@ class DryAir:
     return self.t, self.y
 
   def Online(self, _Q):
-    self._Q_new = np.append( self._Q_new, float(_Q) + self._Q_new )
+    self._Q_new = np.append( self._Q_new, float(_Q) + self._Q_new[-1] )
     self.t = np.append( self.t, self.t[-1] + 1./self.sample_rate )
     self.y = np.append( self.y, self.Model(self.y[-1]) )
 
