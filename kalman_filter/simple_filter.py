@@ -8,7 +8,7 @@ from ..plant.linear_gaussian import LinearGaussian
 vol = 1.
 init_temp = 25.
 sample_rate = 10.
-plant = DryAir( sample_rate, 1, vol, init_temp, LinearGaussian(0., 0., 10.), LinearGaussian(0.6, 0., 0.) )
+plant = DryAir( sample_rate, 1, vol, init_temp, LinearGaussian(0., 10., 10.), LinearGaussian(1.3, 0., 0.) )
 
 A = [1.]
 X = [20.] # State
@@ -28,7 +28,7 @@ var = 0.
 
 #without error covariance
 for i in xrange(200):
-  u.append(0.)
+  u.append(-10.)
   t, y = plant.Online(u[-1])
   true_y.append( plant._T )
   
@@ -46,6 +46,8 @@ for i in xrange(200):
   #Current state
   P.append( K[-1]*P[-1] )
 
+for i in xrange(len(K)):
+  K[i] = K[i]*10
 plt.subplot(111)
 plt.xlabel('t')
 plt.ylabel('y')
