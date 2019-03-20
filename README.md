@@ -2,26 +2,26 @@
 algorithm or math experiments
 
 - RC low pass filter  
-  a. s-Domain low pass filter  
+  - s-Domain low pass filter  
 - monte carlo integration  
 - polynomial approximation  
-  a. linear regression  
-  b. linear regression by pseudo inverse  
-  c. high order approximation  
+  - linear regression  
+  - linear regression by pseudo inverse  
+  - high order approximation  
 - ros  
-  a. /scan recorder  
-  b. /scan scatter  
-  c. random /cmd_vel  
-  d. subscriber  
+  - /scan recorder  
+  - /scan scatter  
+  - random /cmd_vel  
+  - subscriber  
 - Area of two overlapping rectangle  
 - motion profile  
 - TODO: FFT  
 - Plant  
-  a. Dry Air  
-  b. Linear + Gaussian  
-  c. Impulse  
-  d. Sinusoid + Gaussain  
+  - Dry Air  
+  - Linear + Gaussian  
+  - Impulse  
+  - Sinusoid + Gaussain  
+  - damped sinusoidal oscillator  
 - Kalman Filter  
-  a. TODO: Simple Filter  
+  - TODO: Simple Filter  
 - Bayesian Filter  
-  a. predict
