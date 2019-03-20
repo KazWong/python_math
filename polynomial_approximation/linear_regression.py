@@ -9,19 +9,13 @@ sigma = 1.3
 o_m = random.uniform(-20, 20)
 o_c = random.uniform(-20, 20)
 p_x, p_y = LinearGaussian(sigma, o_m, o_c).Offline(time, resolution)
-  
-  
-a = 0.
-b = 0.
-mean_x = np.mean(p_x)
-mean_y = np.mean(p_y)
 
-for i in xrange(len(p_x)):
-  a = (p_x[i] - mean_x)*(p_y[i] - mean_y) + a
-  b = (p_x[i] - mean_x)*(p_x[i] - mean_x) + b
+cov_m = np.cov(p_x, p_y, bias=1)
+a = cov_m[0][1] * len(p_x)
+b = cov_m[0][0] * len(p_x)
 
 m = a / b
-c = mean_y - m * mean_x
+c = np.mean(p_y) - m * np.mean(p_x)
 
 
 o_y = o_m*p_x+o_c
