@@ -27,7 +27,7 @@ true_y = [25.]
 var = 0.
 
 #without error covariance
-for i in xrange(200):
+for i in range(200):
   u.append(-10.)
   t, y = plant.Online(u[-1])
   true_y.append( plant._T )
@@ -46,7 +46,7 @@ for i in xrange(200):
   #Current state
   P.append( K[-1]*P[-1] )
 
-for i in xrange(len(K)):
+for i in range(len(K)):
   K[i] = K[i]*10
 plt.subplot(111)
 plt.xlabel('t')

@@ -1,10 +1,10 @@
 import numpy as np
 import random
 import math
-from .disturbance import Disturbance
+from .signal import Signal
 
-class SineGaussian(Disturbance):
-  def __init__(self, _sigma, _A, _f, _p):
+class SineGaussian(Signal):
+  def __init__(self, _sigma, _A, _f, _p = 0.):
     super(SineGaussian, self).__init__()
   
     self.sig = float(_sigma)
@@ -20,13 +20,3 @@ class SineGaussian(Disturbance):
     self.A = float(_A)
     self.f = float(_f)
     self.p = float(_p)
-    
-  def Offline(self, end_t, sample_rate):
-    sample = float(end_t) * sample_rate;
-    t = np.linspace(0., end_t, sample, endpoint=True)
-    y = np.array([self.Model(t[_]) for _ in range(int(sample))])
-    
-    return t, y
-  
-  def Online(self, t):
-    return self.Model(t)

@@ -1,7 +1,7 @@
 import math
 import numpy as np
 import random
-from disturbance import Disturbance
+from .signal import Signal
 
 class DampedSinOsc:
   def __init__(self, _sample_rate, _input_delay, _damping_ratio, _angular_frequency, _phase_shift, _ampitude, _measure_noise = None):
@@ -14,15 +14,15 @@ class DampedSinOsc:
     self.p = float(_phase_shift)
     self.a = float(_ampitude)
     
-    if (isinstance(_disturbance, Disturbance)):
+    if (isinstance(_disturbance, Signal)):
       self.disturbance = _disturbance
     else:
-      self.disturbance = Disturbance()
+      self.disturbance = Signal()
     
-    if (isinstance(_measure_noise, Disturbance)):
+    if (isinstance(_measure_noise, Signal)):
       self.measure_noise = _measure_noise
     else:
-      self.measure_noise = Disturbance()
+      self.measure_noise = Signal()
       
     self.Reset()
     

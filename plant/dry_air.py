@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from disturbance import Disturbance
+from .signal import Signal
 
 class DryAir:
   def __init__(self, _sample_rate, _input_delay, _volume, _temperature, _disturbance = None, _measure_noise = None):
@@ -13,15 +13,15 @@ class DryAir:
     self._T = self._init_T
     self._Q = self.Density(self._init_T) * self._volume * 1005. * (273.16 + self._T)
     self._Q_new = np.full( int(self.sample_rate * self.input_delay), self._Q )
-    if (isinstance(_disturbance, Disturbance)):
+    if (isinstance(_disturbance, Signal)):
       self.disturbance = _disturbance
     else:
-      self.disturbance = Disturbance()
+      self.disturbance = Signal()
     
-    if (isinstance(_measure_noise, Disturbance)):
+    if (isinstance(_measure_noise, Signal)):
       self.measure_noise = _measure_noise
     else:
-      self.measure_noise = Disturbance()
+      self.measure_noise = Signal()
       
     self.Reset()
     
@@ -50,7 +50,7 @@ class DryAir:
     sample = float(end_t) * self.sample_rate
     self.t = np.linspace(0., end_t, sample, endpoint=True)
     
-    for i in xrange( len(self.t) ):
+    for i in range( len(self.t) ):
       self.y.append( self.Model(self.t[i]) )
     
     return self.t, self.y
