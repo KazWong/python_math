@@ -1,33 +1,22 @@
-import random
 import numpy as np
-import matplotlib.pyplot as plt
-from ..plant.linear_gaussian import LinearGaussian
 
-resolution = 5
-time = 5
-sigma = 1.3
-o_m = random.uniform(-20, 20)
-o_c = random.uniform(-20, 20)
-p_x, p_y = LinearGaussian(sigma, o_m, o_c).Offline(time, resolution)
+def LeastSquare(x, y):
+  l = len(x)
+  cov_m = np.cov(x, y, bias=1)
+  a = cov_m[0][1] * l
+  b = cov_m[0][0] * l
 
-cov_m = np.cov(p_x, p_y, bias=1)
-a = cov_m[0][1] * len(p_x)
-b = cov_m[0][0] * len(p_x)
+  m = a / b
+  c = np.mean(y) - m * np.mean(x)
+  
+  return m, c
 
-m = a / b
-c = np.mean(p_y) - m * np.mean(p_x)
+def PseudoInverse(x, y):
+  A = np.concatenate((np.ones([len(x), 1]), x.reshape([-1, 1])), axis=1)
+  B = y.reshape([-1, 1])
 
-
-o_y = o_m*p_x+o_c
-y = m*p_x+c
-
-print o_m, o_c
-print m, c
-
-plt.subplot(111)
-plt.xlabel('x')
-plt.ylabel('y')
-plt.scatter(p_x, p_y, c='g')
-plt.plot(p_x, y)
-plt.plot(p_x, o_y, 'r--')
-plt.show()
+  A_t = A.transpose();
+  A = np.linalg.inv(A_t.dot(A)).dot(A_t)
+  a = A.dot(B)
+  
+  return a[1], a[0]
