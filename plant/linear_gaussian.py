@@ -19,18 +19,11 @@ class LinearGaussian(Disturbance):
     self.c = float(_c)
     
   def Offline(self, end_t, sample_rate):
-    yy = []
-    
     sample = float(end_t) * sample_rate;
     t = np.linspace(0., end_t, sample, endpoint=True)
-    
-    for i in range( len(t) ):
-      yy.append( self.Model(t[i]) )
-    y = np.array(yy)
+    y = np.array([self.Model(t[_]) for _ in range(int(sample))])
     
     return t, y
   
   def Online(self, t):
-    y = self.Model(t) + self.disturbance.Online(t)
-
-    return y
+    return self.Model(t)

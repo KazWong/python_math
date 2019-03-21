@@ -28,8 +28,8 @@ pos = a[0] + a[1]*t + a[2]*t*t + a[3]*t*t*t + a[4]*t*t*t*t + a[5]*t*t*t*t*t
 vel = a[1] + 2*a[2]*t + 3*a[3]*t*t + 4*a[4]*t*t*t + 5*a[5]*t*t*t*t
 acc = 2*a[2] + 6*a[3]*t + 12*a[4]*t*t + 20*a[5]*t*t*t
 
-for i in xrange(6):
-  print a[i]
+for i in range(6):
+  print(a[i])
 
 plt.subplot(311)
 plt.xlabel('t')

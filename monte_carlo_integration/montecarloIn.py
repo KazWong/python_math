@@ -6,7 +6,7 @@ def In_Pi(throws):
   _sysrand = random.SystemRandom()
   area = 0
 
-  for i in xrange(throws):
+  for i in range(throws):
     randX = _sysrand.uniform(0, 1)
     randY = _sysrand.uniform(0, 1)
     
@@ -28,7 +28,7 @@ if __name__ == '__main__':
   rel_err = []
   _rel_err = []
   j = 0
-  for i in xrange(1, 100000, 2):
+  for i in range(1, 1000, 2):
     pi.append(In_Pi(i))
     x.append(i)
     mpi.append(lpi)

@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import math
-from disturbance import Disturbance
+from .disturbance import Disturbance
 
 class SineGaussian(Disturbance):
   def __init__(self, _sigma, _A, _f, _p):
@@ -22,18 +22,11 @@ class SineGaussian(Disturbance):
     self.p = float(_p)
     
   def Offline(self, end_t, sample_rate):
-    t = []
-    y = []
-    
     sample = float(end_t) * sample_rate;
     t = np.linspace(0., end_t, sample, endpoint=True)
-    
-    for i in xrange( len(t) ):
-      y.append( self.Model(t[i]) )
+    y = np.array([self.Model(t[_]) for _ in range(int(sample))])
     
     return t, y
   
   def Online(self, t):
-    y = self.Model(t) + self.disturbance.Online(t)
-
-    return y
+    return self.Model(t)
