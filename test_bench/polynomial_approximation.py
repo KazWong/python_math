@@ -18,16 +18,16 @@ o_y = o_m*p_x+o_c
 # linear regression
 m0, c0 = LR.LeastSquare(p_x, p_y)
 m1, c1 = LR.PseudoInverse(p_x, p_y)
-a = HA.HighOrderApprox(p_x, p_y, 1)
+m2, c2 = HA.HighOrderApprox(p_x, p_y, 1)
 y0 = m0*p_x+c0
 y1 = m1*p_x+c1
-y2 = a[1]*p_x+a[0]
+y2 = m2*p_x+c2
 
 
-print("Origin\t\t", o_m, o_c)
-print("Least Square\t", m0, c0)
-print("Pseudo Inverse\t", m1, c1)
-print("High Order\t", a[1], a[0])
+print(o_m, o_c)
+print(m0, c0)
+print(m1, c1)
+print(m2, c2)
 
 plt.subplot(311)
 plt.xlabel('x')
@@ -42,13 +42,12 @@ plt.ylabel('y')
 plt.scatter(p_x, p_y, c='g')
 plt.plot(p_x, o_y, 'r--')
 plt.plot(p_x, y1)
+plt.show()
 
 plt.subplot(313)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.scatter(p_x, p_y, c='g')
 plt.plot(p_x, o_y, 'r--')
-plt.plot(p_x, y2)
-
-
+plt.plot(p_x, y3)
 plt.show()

@@ -16,7 +16,6 @@ def PseudoInverse(x, y):
   B = y.reshape([-1, 1])
 
   A_t = A.transpose();
-  A = np.linalg.inv(A_t.dot(A)).dot(A_t)
-  a = A.dot(B)
+  a = np.linalg.inv(A_t.dot(A)).dot(A_t).dot(B)
   
   return a[1], a[0]
