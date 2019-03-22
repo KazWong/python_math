@@ -45,7 +45,7 @@ class Ideal(Signal):
     return t, y
     
   def Online(self, t):   
-    return self.Model(t)
+    return 0.
   
   def Cascade(self, _signal):
     self.signal = None

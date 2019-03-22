@@ -24,7 +24,12 @@ class DryAir:
       self.measure_noise = Signal()
       
     self.Reset()
-    
+
+  def Reset(self):
+    self.t = [0.]
+    self.y = [self._init_T]
+    self._T = self._init_T
+  
   def Density(self, T):
     return 101325./( 287.058 * (273.16 + float(self._T)) )
     
@@ -37,11 +42,6 @@ class DryAir:
     T = self._T + self.measure_noise.Online(t)
     
     return T
-  
-  def Reset(self):
-    self.t = [0.]
-    self.y = [self._init_T]
-    self._T = self._init_T
   
   def Offline(self, end_t):
     self.t = []

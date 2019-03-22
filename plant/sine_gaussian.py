@@ -12,11 +12,11 @@ class SineGaussian(Signal):
     self.f = float(_f)
     self.p = float(_p)
     self.t = 0.
-    
-  def Model(self, t):
-    return random.gauss(self.A*math.sin(2*math.pi*self.f*t+self.p), self.sig)
   
   def Reset(self, _m, _c):
     self.A = float(_A)
     self.f = float(_f)
     self.p = float(_p)
+      
+  def Model(self, t):
+    return random.gauss(self.A*math.sin(2*math.pi*self.f*t+self.p), self.sig)

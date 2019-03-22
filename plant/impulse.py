@@ -8,13 +8,16 @@ class Impulse(Signal):
   
     self.A = float(_A)
     self.t = float(_t)
+    self.last_t = 0.
   
-  def Model(self, t):
-    y = 0.
-    if (t == self.t)
-      y = self.A
-    return y
-      
   def Reset(self, _t, _A):
     self.A = float(_A)
     self.t = float(_t)
+    
+  def Model(self, t):
+    y = 0.
+    if (t == self.t or (t > self.t and self.last_t < self.t) ):
+      y = self.A
+    self.last_t = t
+    
+    return y

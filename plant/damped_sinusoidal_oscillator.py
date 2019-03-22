@@ -25,18 +25,17 @@ class DampedSinOsc:
       self.measure_noise = Signal()
       
     self.Reset()
-    
+  
+  def Reset(self):
+    self.t = [0.]
+    self.y = [self.a*math.sin(self.p)]  
     
   def Model(self, t):
     z = self.a*math.exp(-self.dr*self.f*t)*math.sin(math.sqrt(1-self.dr*self.dr)*self.f*t+self.p)
     z = z + self.measure_noise.Online(t)
     
     return z
-  
-  def Reset(self):
-    self.t = [0.]
-    self.y = [self.a*math.sin(self.p)]
-  
+
   def Offline(self, end_t):
     self.t = []
     self.y = []
