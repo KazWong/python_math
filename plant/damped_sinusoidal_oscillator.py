@@ -1,12 +1,11 @@
 import math
 import numpy as np
 import random
-from .signal import Signal
+from .signal import Signal, Ideal
 
 class DampedSinOsc:
-  def __init__(self, _sample_rate, _input_delay, _damping_ratio, _angular_frequency, _phase_shift, _ampitude, _measure_noise = None):
+  def __init__(self, _sample_rate, _damping_ratio, _ampitude, _angular_frequency, _phase_shift, _disturbance = None, _measure_noise = None):
     self.sample_rate = float(_sample_rate)
-    self.input_delay = int(_input_delay)
     self.t = []
     self.y = []
     self.dr = float(_damping_ratio)
@@ -17,12 +16,12 @@ class DampedSinOsc:
     if (isinstance(_disturbance, Signal)):
       self.disturbance = _disturbance
     else:
-      self.disturbance = Signal()
+      self.disturbance = Ideal()
     
     if (isinstance(_measure_noise, Signal)):
       self.measure_noise = _measure_noise
     else:
-      self.measure_noise = Signal()
+      self.measure_noise = Ideal()
       
     self.Reset()
   
@@ -31,7 +30,7 @@ class DampedSinOsc:
     self.y = [self.a*math.sin(self.p)]  
     
   def Model(self, t):
-    z = self.a*math.exp(-self.dr*self.f*t)*math.sin(math.sqrt(1-self.dr*self.dr)*self.f*t+self.p)
+    z = self.a*math.exp(-self.dr*2.*math.pi*self.f*t)*math.sin(math.sqrt(1.-self.dr**2.)*2.*math.pi*self.f*t+self.p)
     z = z + self.measure_noise.Online(t)
     
     return z
@@ -43,7 +42,7 @@ class DampedSinOsc:
     sample = float(end_t) * self.sample_rate
     self.t = np.linspace(0., end_t, sample, endpoint=True)
     
-    for i in xrange( len(self.t) ):
+    for i in range( len(self.t) ):
       self.y.append( self.Model(self.t[i]) )
     
     return self.t, self.y

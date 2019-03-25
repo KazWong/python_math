@@ -1,27 +1,26 @@
 import numpy as np
 import random
-from .signal import Signal
+from .signal import Signal, Ideal
 
 class DryAir:
-  def __init__(self, _sample_rate, _input_delay, _volume, _temperature, _disturbance = None, _measure_noise = None):
+  def __init__(self, _sample_rate, _volume, _temperature, _disturbance = None, _measure_noise = None):
     self.sample_rate = float(_sample_rate)
     self._volume = float(_volume)
     self.y = []
     self.t = []
-    self.input_delay = _input_delay
     self._init_T = float(_temperature)
     self._T = self._init_T
     self._Q = self.Density(self._init_T) * self._volume * 1005. * (273.16 + self._T)
-    self._Q_new = np.full( int(self.sample_rate * self.input_delay), self._Q )
+    self._Q_new = self._Q
     if (isinstance(_disturbance, Signal)):
       self.disturbance = _disturbance
     else:
-      self.disturbance = Signal()
+      self.disturbance = Ideal()
     
     if (isinstance(_measure_noise, Signal)):
       self.measure_noise = _measure_noise
     else:
-      self.measure_noise = Signal()
+      self.measure_noise = Ideal()
       
     self.Reset()
 
@@ -34,10 +33,9 @@ class DryAir:
     return 101325./( 287.058 * (273.16 + float(self._T)) )
     
   def Model(self, t):
-    energy_exchange = self._Q_new[0] - self._Q + self.disturbance.Online(t)
+    energy_exchange = self._Q_new - self._Q + self.disturbance.Online(t)
     self._T = self._T + energy_exchange/(self.Density(self._T) * self._volume * 1005.)
-    self._Q = self._Q_new[0]
-    np.delete(self._Q_new, [0])
+    self._Q = self._Q_new
     
     T = self._T + self.measure_noise.Online(t)
     
@@ -56,7 +54,7 @@ class DryAir:
     return self.t, self.y
 
   def Online(self, _Q):
-    self._Q_new = np.append( self._Q_new, float(_Q) + self._Q_new[-1] )
+    self._Q_new = float(_Q) + self._Q_new[-1]
     self.t = np.append( self.t, self.t[-1] + 1./self.sample_rate )
     self.y = np.append( self.y, self.Model(self.y[-1]) )
 

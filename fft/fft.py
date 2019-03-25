@@ -24,7 +24,7 @@ plt.plot(x, y)
 plt.title("Original")
 
 plt.subplot(212) 
-plt.scatter(xx_halft, yy_half, s=0.5) 
+plt.scatter(xx_halft, yy_half, s=0.7) 
 plt.title("FFT") 
 
 plt.show()
