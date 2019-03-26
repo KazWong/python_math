@@ -34,25 +34,29 @@ t3 = t2*t1
 t4 = t3*t1
 t5 = t4*t1
 
-pos = a[0] + a[1]*t1 + a[2]*t2 + a[3]*t3 + a[4]*t4 + a[5]*t5
-vel = a[1] + 2*a[2]*t1 + 3*a[3]*t2 + 4*a[4]*t3 + 5*a[5]*t4
-acc = 2*a[2] + 6*a[3]*t1 + 12*a[4]*t2 + 20*a[5]*t3
+pos  = a[0] + a[1]*t1 + a[2]*t2 + a[3]*t3 + a[4]*t4 + a[5]*t5
+vel  = a[1] + 2*a[2]*t1 + 3*a[3]*t2 + 4*a[4]*t3 + 5*a[5]*t4
+acc  = 2*a[2] + 6*a[3]*t1 + 12*a[4]*t2 + 20*a[5]*t3
+jerk = 6*a[3] + 24*a[4]*t1 + 60*a[5]*t2
 
 for i in range(6):
   print(a[i])
 
-plt.subplot(311)
+plt.subplot(411)
 plt.xlabel('t')
 plt.ylabel('pos')
 plt.plot(t1, pos)
-plt.subplot(312)
+plt.subplot(412)
 plt.xlabel('t')
 plt.ylabel('vel')
 plt.plot(t1, vel)
-plt.subplot(313)
+plt.subplot(413)
 plt.xlabel('t')
 plt.ylabel('acc')
 plt.plot(t1, acc)
+plt.subplot(414)
+plt.ylabel('jerk')
+plt.plot(t1, jerk)
 plt.show()
   
 

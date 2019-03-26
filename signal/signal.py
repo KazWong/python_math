@@ -12,7 +12,7 @@ class Signal(object):
   
   def Offline(self, _t, sample_rate=None):
     if (sample_rate is not None):
-      t = np.linspace(0., _t, int(_t*sample_rate), endpoint=True)
+      t = np.linspace(0., _t, int(_t*sample_rate+1), endpoint=True)
     else:
       t = _t
 

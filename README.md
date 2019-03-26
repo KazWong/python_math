@@ -1,12 +1,11 @@
 # python_math
 algorithm or math experiments
 
-- RC low pass filter  
+- linear filter  
   - s-Domain low pass filter  
 - monte carlo integration  
 - polynomial approximation  
   - linear regression  
-  - linear regression by pseudo inverse  
   - high order approximation  
 - ros  
   - /scan recorder  
@@ -15,13 +14,18 @@ algorithm or math experiments
   - subscriber  
 - Area of two overlapping rectangle  
 - motion profile  
+  - 5 order  
+  - 7 order  
 - TODO: FFT  
 - Plant  
   - Dry Air  
-  - Linear + Gaussian  
-  - Impulse  
-  - Sinusoid + Gaussain  
+  - newtonian  
   - damped sinusoidal oscillator  
-- Kalman Filter  
-  - TODO: Simple Filter  
+- Signal
+  - Impulse  
+  - PWM
+  - Sinusoid + Gaussain  
+  - Linear + Gaussian  
 - Bayesian Filter  
+  - Kalman Filter  
+- Test Bench

@@ -28,4 +28,4 @@ class DryAir(Plant):
   
   def Online(self, _Q=0.):
     self._Q_new = float(_Q) + self._Q_new
-    super(DryAir, self).Online()
+    return super(DryAir, self).Online()
