@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-from ..plant.linear_gaussian import LinearGaussian
+from ..signal.linear_gaussian import LinearGaussian
 from ..polynomial_approximation import linear_regression as LR
 from ..polynomial_approximation import high_order_approximation as HA
 

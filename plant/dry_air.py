@@ -1,62 +1,31 @@
 import numpy as np
-import random
-from .signal import Signal, Ideal
+from .plant import Plant
 
-class DryAir:
-  def __init__(self, _sample_rate, _volume, _temperature, _disturbance = None, _measure_noise = None):
-    self.sample_rate = float(_sample_rate)
-    self._volume = float(_volume)
-    self.y = []
-    self.t = []
-    self._init_T = float(_temperature)
-    self._T = self._init_T
-    self._Q = self.Density(self._init_T) * self._volume * 1005. * (273.16 + self._T)
-    self._Q_new = self._Q
-    if (isinstance(_disturbance, Signal)):
-      self.disturbance = _disturbance
-    else:
-      self.disturbance = Ideal()
+class DryAir(Plant):
+  def __init__(self, _sample_rate, _v, _T0, _di = None, _do = None):
+    super(DryAir, self).__init__(_sample_rate, _di, _do)
     
-    if (isinstance(_measure_noise, Signal)):
-      self.measure_noise = _measure_noise
-    else:
-      self.measure_noise = Ideal()
-      
+    self._v = float(_v)
+    self._T0 = float(_T0)
     self.Reset()
 
   def Reset(self):
-    self.t = [0.]
-    self.y = [self._init_T]
-    self._T = self._init_T
+    self.t = np.array([0.])
+    self.x = np.array([self._T0])
+    self._T = self._T0
+    self._Q = self.Density(self._T0) * self._v * 1005. * (273.16 + self._T0)
+    self._Q_new = self._Q
   
   def Density(self, T):
     return 101325./( 287.058 * (273.16 + float(self._T)) )
     
   def Model(self, t):
-    energy_exchange = self._Q_new - self._Q + self.disturbance.Online(t)
-    self._T = self._T + energy_exchange/(self.Density(self._T) * self._volume * 1005.)
+    energy_exchange = self._Q_new - self._Q + self.di.Online(t)
+    self._T = self._T + energy_exchange/(self.Density(self._T) * self._v * 1005.)
     self._Q = self._Q_new
-    
-    T = self._T + self.measure_noise.Online(t)
-    
+    T = self._T + self.do.Online(t)
     return T
   
-  def Offline(self, end_t):
-    self.t = []
-    self.y = []
-    
-    sample = float(end_t) * self.sample_rate
-    self.t = np.linspace(0., end_t, sample, endpoint=True)
-    
-    for i in range( len(self.t) ):
-      self.y.append( self.Model(self.t[i]) )
-    
-    return self.t, self.y
-
-  def Online(self, _Q):
-    self._Q_new = float(_Q) + self._Q_new[-1]
-    self.t = np.append( self.t, self.t[-1] + 1./self.sample_rate )
-    self.y = np.append( self.y, self.Model(self.y[-1]) )
-
-    
-    return self.t[-1], self.y[-1]
+  def Online(self, _Q=0.):
+    self._Q_new = float(_Q) + self._Q_new
+    super(DryAir, self).Online()

@@ -10,10 +10,16 @@ class Signal(object):
   def Model(self, t):
     raise NotImplementedError()
   
-  def Offline(self, t):
+  def Offline(self, _t, sample_rate=None):
+    if (sample_rate is not None):
+      t = np.linspace(0., _t, int(_t*sample_rate), endpoint=True)
+    else:
+      t = _t
+
     y = np.array([self.Model(t[_]) for _ in range(len(t))])
-    y1 = self.signal.Offline(t)
-    return y+y1
+    t, y1 = self.signal.Offline(t)
+    
+    return t, y + y1
     
   def Online(self, t):   
     return self.Model(t) + self.signal.Online(t)

@@ -11,7 +11,6 @@ class SineGaussian(Signal):
     self.A = float(_A)
     self.f = float(_f)
     self.p = float(_p)
-    self.t = 0.
   
   def Reset(self, _m, _c):
     self.A = float(_A)

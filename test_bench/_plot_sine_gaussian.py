@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ..plant.sine_gaussian import SineGaussian
+from ..signal.sine_gaussian import SineGaussian
 
 resolution = 1000
 time = 5

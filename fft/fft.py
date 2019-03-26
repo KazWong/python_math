@@ -1,7 +1,7 @@
 from scipy.fftpack import fft,ifft
 import numpy as np
 import matplotlib.pyplot as plt
-from ..plant.sine_gaussian import SineGaussian
+from ..signal.sine_gaussian import SineGaussian
 
 sine2 = SineGaussian(0., 2.7, 6.4, 0.)
 sine1 = SineGaussian(0., 1.7, 12.3, 0.)

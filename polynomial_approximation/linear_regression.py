@@ -1,8 +1,8 @@
 import numpy as np
 
-def LeastSquare(x, y):
+def LeastSquare(x, y, _bias=1):
   l = len(x)
-  cov_m = np.cov(x, y, bias=1)
+  cov_m = np.cov(x, y, bias=_bias)
   a = cov_m[0][1] * l
   b = cov_m[0][0] * l
 

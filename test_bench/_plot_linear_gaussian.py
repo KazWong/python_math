@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ..plant.linear_gaussian import LinearGaussian
+from ..signal.linear_gaussian import LinearGaussian
 
 resolution = 5
 time = 5
