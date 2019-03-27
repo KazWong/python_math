@@ -12,10 +12,10 @@ def LeastSquare(x, y, _bias=1):
   return m, c
 
 def PseudoInverse(x, y):
-  A = np.concatenate((np.ones([len(x), 1]), x.reshape([-1, 1])), axis=1)
-  B = y.reshape([-1, 1])
+  A = np.concatenate((np.ones([len(x), 1]), np.array([x]).T), axis=1)
+  B = np.array([y]).T
 
-  A_t = A.transpose();
-  a = np.linalg.inv(A_t.dot(A)).dot(A_t).dot(B)
+  A_T = A.T
+  a = np.linalg.inv(A_T.dot(A)).dot(A_T).dot(B)
   
   return a[1], a[0]

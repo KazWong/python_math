@@ -52,6 +52,6 @@ plt.ylabel('Online acc')
 plt.scatter(p_x, p_y2[:,2], s=0.5)
 plt.subplot(428)
 plt.ylabel('Online jerk')
-plt.scatter(p_x, p_y2[:,3], s=0.5)
+plt.scatter(plant2.t, p_y2[:,3], s=0.5)
 
 plt.show()

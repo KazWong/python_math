@@ -4,6 +4,7 @@ from ..signal.signal import Signal, Ideal
 class Plant(object):
   def __init__(self, _sample_rate, _di = None, _do = None):
     self.sample_rate = float(_sample_rate)
+    self.sim_t = - 1./(self.sample_rate)
     self.t = np.array([])
     self.x = np.array([])
 
@@ -18,7 +19,9 @@ class Plant(object):
       self.do = Ideal()
 
   def Reset(self):
-    raise NotImplementedError()
+    self.sim_t = - 1./(self.sample_rate)
+    self.t = np.array([])
+    self.x = np.array([])
     
   def Model(self, t):
     raise NotImplementedError()
@@ -30,6 +33,7 @@ class Plant(object):
     return self.t, self.x
 
   def Online(self):
-    self.t = np.append( self.t, self.t[-1] + 1./(self.sample_rate) )
-    self.x = np.append( self.x, self.Model(self.t[-1]) )
+    self.sim_t = round(self.sim_t + 1./(self.sample_rate), 4)
+    self.t = np.append( self.t, self.sim_t )
+    self.x = np.append( self.x, self.Model(self.sim_t) )
     return self.t[-1], self.x[-1]

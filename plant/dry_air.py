@@ -10,8 +10,8 @@ class DryAir(Plant):
     self.Reset()
 
   def Reset(self):
-    self.t = np.array([0.])
-    self.x = np.array([self._T0])
+    super(DryAir, self).Reset()
+    
     self._T = self._T0
     self._Q = self.Density(self._T0) * self._v * 1005. * (273.16 + self._T0)
     self._Q_new = self._Q
