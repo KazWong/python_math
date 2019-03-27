@@ -8,16 +8,15 @@ time = 5
 sigma = 0.01
 A0 = [0., 10., -9.81, 0.]
 disturbance = LinearGaussian(0., 0., 0.)
-measurement_noise = LinearGaussian(0., 0., 0.)
+measurement_noise = LinearGaussian(3., 0., 0.)
 
+#Offline
 plant = Newtonian(_sample_rate, A0, disturbance, measurement_noise)
 p_x, p_y = plant.Offline(time)
 
+#Online
 plant2 = Newtonian(_sample_rate, A0, disturbance, measurement_noise)
-p_x2 = 0.
-p_y2 = np.array([])
-
-
+p_x2 = 0
 while (round(p_x2, 3) < time):
   p_x2, _ = plant2.Online([0.])
 p_y2 = plant2.x.reshape([-1, 4])

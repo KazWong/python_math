@@ -2,14 +2,13 @@ import math
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from ..plant.dry_air import DryAir
+from ..plant.newtonian import Newtonian
 from ..signal.linear_gaussian import LinearGaussian
 from ..kalman_filter.kalman_filter import KalmanFilter
 
-vol = 1.
-init_temp = 25.
-sample_rate = 10.
-plant = DryAir( sample_rate, 1, vol, init_temp, LinearGaussian(0., 10., 10.), LinearGaussian(1.3, 0., 0.) )
+A = [0. 5. -9.81 0.]
+sample_rate = 100.
+plant = Newtonian( sample_rate, 1, vol, init_temp, _do=LinearGaussian(1.3, 0., 0.) )
 
 A = [1.]
 X = [20.] # State
@@ -23,32 +22,7 @@ Z = [0.] # Observation noise
 R = [1.] # Observation noise covariance matrix
 K = [1.] # Kalman gain
 
-total_measurement = []
-true_y = [25.]
-var = 0.
 
-#without error covariance
-for i in range(200):
-  u.append(-10.)
-  t, y = plant.Online(u[-1])
-  true_y.append( plant._T )
-  
-  #process convariance
-  total_measurement.append(y)
-  var = (sum(total_measurement)/len(total_measurement) - y) + var
-  
-  #Prediced state
-  Xp = A[-1]*X[-1] + B[-1]*u[-1] + w[-1]
-  P.append( pow(var/len(total_measurement), 2) + Q[-1] )
-  #Measurement state
-  K.append( P[-1] / (P[-1] + R[-1]) )
-  Y.append( y + Z[-1] )
-  X.append( Xp + K[-1]*(Y[-1] - X[-1]) )
-  #Current state
-  P.append( K[-1]*P[-1] )
-
-for i in range(len(K)):
-  K[i] = K[i]*10
 plt.subplot(111)
 plt.xlabel('t')
 plt.ylabel('y')
