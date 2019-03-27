@@ -19,7 +19,7 @@ class Newtonian(Plant):
   def Model(self, t):
     self._X[self._len-1] += (self.di.Online(t) / self.sample_rate)
     x = self._X[0] + self._X[1]*t + 0.5*self._X[2]*t**2 + 0.16666*self._X[3]*t**3 + self.do.Online(t)
-    v = self._X[1] + self._X[2]*t + 0.3333*self._X[3]*t**2
+    v = self._X[1] + self._X[2]*t + 0.3333*self._X[3]*t**2 + self.do.Online(t)
     a = self._X[2] + 0.6666*self._X[3]*t
     j = 1.3333*self._X[3]
     

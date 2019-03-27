@@ -6,60 +6,59 @@ from ..plant.newtonian import Newtonian
 from ..signal.linear_gaussian import LinearGaussian
 from ..bayesian_filtering.kalman_filter import KalmanFilter
 
-X0 = [0., 5., 0., 0.]
-sample_rate = 1000.
-plant = Newtonian( sample_rate, X0, _do=LinearGaussian(1.3, 0., 0.) )
-kf = KalmanFilter(1./sample_rate)
+X0 = [0., 5., -9.81, 0.]
+sample_rate = 100.
+plant = Newtonian( sample_rate, X0, _do=LinearGaussian(2., 0., 0.) )
+kf = KalmanFilter()
+T = 1./sample_rate
 
-A = [1.]
-X = [20.] # State
-P = [1.] # Process covariance matrix
-B = []
-u = [] # control variable matrix
-w = [0.] # Process noise
-Q = [] # Process noise covariance matrix
-Y = [] # Observation
-Z = [0.] # Observation noise
-R = [1.] # Observation noise covariance matrix
-K = np.array([]) # Kalman gain
-P = np.array([]) # variance
+#parameters
+kf.F = np.array([[1., T], [0, 1.]])
+kf.X = np.array([[0.], [4.5]])
+kf.B = np.array([[0.5*T**2], [T]])
+kf.P = np.array([[50., 0], [0, 50.]])
+kf.Q = np.array([[0.1, 0], [0, 0.01]])
+kf.R = np.array([[2., 0], [0, 2.0]])
+kf.Init([1., 1])
 
-z = np.array([])
+#var
+x = np.array([])
+K = np.array([])
+P = np.array([])
 
 for i in range(500):
-  _, X = plant.Online([0.])
-  kf.Predict([0.])
-  kf.Update(X[0])
+  _, X = plant.Online([0., 0., 0.005, 0.])
+  kf.Predict([0.005])
+  kf.Update(X[:2])
   
   K = np.append(K, kf.K)
   P = np.append(P, kf.P)
-  z = np.append( z, kf.X )
+  x = np.append(x, kf.X)
 
-zz = z.reshape([-1, 2])
-p_y2 = plant.x.reshape([-1, 4])
+x = x.reshape([-1, 2])
+z = plant.x.reshape([-1, 4])
 plt.subplot(411)
 plt.xlabel('t')
 plt.ylabel('pos')
-plt.plot(plant.t, zz[:,0], 'r')
-plt.scatter(plant.t, p_y2[:,0], s=0.5)
-
+plt.plot(plant.t, x[:,0], 'r')
+plt.scatter(plant.t, z[:,0], s=0.5)
 plt.subplot(412)
 plt.xlabel('t')
 plt.ylabel('vel')
-plt.plot(plant.t, zz[:,1], 'r')
-plt.scatter(plant.t, p_y2[:,1], s=0.5)
+plt.plot(plant.t, x[:,1], 'r')
+plt.scatter(plant.t, z[:,1], s=0.5)
 
-KK = K.reshape([-1, 2])
+K = K.reshape([-1, 4])
 plt.subplot(413)
 plt.xlabel('t')
 plt.ylabel('Kalman gain')
-plt.scatter(plant.t, KK[:,0], s=0.5, c='g')
-plt.scatter(plant.t, KK[:,1], s=0.5, c='b')
+plt.scatter(plant.t, K[:,0], s=0.5, c='g')
+plt.scatter(plant.t, K[:,3], s=0.5, c='b')
 
-PP = P.reshape([-1, 4])
+P = P.reshape([-1, 4])
 plt.subplot(414)
 plt.ylabel('Variance')
-plt.scatter(plant.t, PP[:,0], s=0.5, c='g')
-plt.scatter(plant.t, PP[:,3], s=0.5, c='b')
+plt.scatter(plant.t, P[:,0], s=0.5, c='g')
+plt.scatter(plant.t, P[:,3], s=0.5, c='b')
 
 plt.show()
