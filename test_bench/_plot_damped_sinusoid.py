@@ -8,10 +8,21 @@ sigma = 0.01
 amp = 10.
 frq = 2.
 shift = 0.
-p_x, p_y = DampedSinOsc(_sample_rate, 0.1, amp, frq, shift).Offline(time)
+t, p_x = DampedSinOsc(_sample_rate, 0.1, amp, frq, shift).Offline(time)
 
-plt.subplot(111)
+plant = DampedSinOsc(_sample_rate, 0.1, amp, frq, shift)
+for _ in range(len(p_x)):
+  plant.Online()
+
+
+plt.subplot(121)
 plt.xlabel('x')
 plt.ylabel('y')
-plt.scatter(p_x, p_y, c='g', s=0.7)
+plt.scatter(t, p_x, c='g', s=0.5)
+
+plt.subplot(122)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.scatter(t, plant.x, c='g', s=0.5)
+
 plt.show()

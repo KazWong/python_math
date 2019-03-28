@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ..signal.pwm import PWM
+from ..signal.square import Square
 
 
-x, y = PWM(24, 0, 6, 3).Offline(18, 100)
+x, y = Square(0., 40, 1., 1., 0.).Offline(5, 100)
 
 plt.subplot(111)
 plt.xlabel('x')
 plt.ylabel('y')
-plt.plot(x, y)
+plt.plot(x, y, 'g')
 plt.show()

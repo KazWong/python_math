@@ -2,21 +2,35 @@ import numpy as np
 from ..signal.signal import Signal, Ideal
 
 class Plant(object):
-  def __init__(self, _sample_rate, _di = None, _do = None):
+  def __init__(self, _sample_rate, _di = None, _do = None, _di_size = None, _do_size = None):
     self.sample_rate = float(_sample_rate)
     self.sim_t = - 1./(self.sample_rate)
     self.t = np.array([])
     self.x = np.array([])
 
-    if (isinstance(_di, Signal)):
-      self.di = _di
+    if (_di_size is None):
+      if (isinstance(_di, Signal)):
+        self.di = _di
+      else:
+        self.di = Ideal()
     else:
-      self.di = Ideal()
-    
-    if (isinstance(_do, Signal)):
-      self.do = _do
+      for i in range(_di_size):
+        if (not isinstance(_di[i], Signal)):
+          self.di = [Ideal()] * _di_size
+        else:
+          self.di = _di
+
+    if (_do_size is None):
+      if (isinstance(_do, Signal)):
+        self.do = _do
+      else:
+        self.do = Ideal()
     else:
-      self.do = Ideal()
+      for i in range(_do_size):
+        if (not isinstance(_do[i], Signal)):
+          self.do = [Ideal()] * _do_size
+        else:
+          self.do = _do
 
   def Reset(self):
     self.sim_t = - 1./(self.sample_rate)

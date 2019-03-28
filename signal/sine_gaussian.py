@@ -18,4 +18,4 @@ class SineGaussian(Signal):
     self.p = float(_p)
       
   def Model(self, t):
-    return random.gauss(self.A*math.sin(2*math.pi*self.f*t+self.p), self.sig)
+    return random.gauss(self.A*math.sin(2.*math.pi*self.f*t+self.p), self.sig)

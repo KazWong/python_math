@@ -3,12 +3,24 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from ..plant.newtonian import Newtonian
+from ..signal.signal import Ideal
+from ..signal.sine_gaussian import SineGaussian
 from ..signal.linear_gaussian import LinearGaussian
 from ..bayesian_filtering.kalman_filter import KalmanFilter
 
 X0 = [0., 5., -9.81, 0.]
 sample_rate = 100.
-plant = Newtonian( sample_rate, X0, _do=LinearGaussian(2., 0., 0.) )
+
+di = [SineGaussian(1.1, 10., 1.),
+      LinearGaussian(0.0, 0., 0.),
+      Ideal(),
+      Ideal()]
+do = [LinearGaussian(1.1, 0., 0.),
+      LinearGaussian(1.1, 0., 0.),
+      Ideal(),
+      Ideal()]
+      
+plant = Newtonian( sample_rate, X0, _di=di, _do=do )
 kf = KalmanFilter()
 T = 1./sample_rate
 
@@ -17,7 +29,7 @@ kf.F = np.array([[1., T], [0, 1.]])
 kf.X = np.array([[0.], [4.5]])
 kf.B = np.array([[0.5*T**2], [T]])
 kf.P = np.array([[50., 0], [0, 50.]])
-kf.Q = np.array([[0.1, 0], [0, 0.01]])
+kf.Q = np.array([[0.1, 0], [0, 0.1]])
 kf.R = np.array([[2., 0], [0, 2.0]])
 kf.Init([1., 1])
 

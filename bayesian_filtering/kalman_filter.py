@@ -47,3 +47,5 @@ class KalmanFilter:
     self.Y = np.array([z]).T - self.H.dot(self.Xp) + self.Z
     self.X = self.Xp + self.K.dot(self.Y)
     self.P = ( self.I - self.K.dot(self.H) ).dot(self.Pp)
+    
+    

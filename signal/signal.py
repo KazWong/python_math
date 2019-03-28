@@ -31,7 +31,6 @@ class Signal(object):
 class Ideal(Signal):
   def __init__(self):
     self.signal = None
-    return
     
   def Reset(self):
     pass
@@ -41,7 +40,6 @@ class Ideal(Signal):
   
   def Offline(self, t):
     y = np.array([0.] * len(t))
-    
     return t, y
     
   def Online(self, t):   
