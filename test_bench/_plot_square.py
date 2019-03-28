@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from ..signal.square import Square
 
 
-x, y = Square(0., 40, 1., 1., 0.).Offline(5, 100)
+x, y = Square(0., 40, 1., 1.).Offline(5, 100)
 
 plt.subplot(111)
 plt.xlabel('x')

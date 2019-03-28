@@ -5,14 +5,14 @@ from .sine_gaussian import SineGaussian
 from .linear_gaussian import LinearGaussian
 
 class Square(Signal):
-  def __init__(self, _sigma, _terms, _A, _f, _p = 0.):
+  def __init__(self, _sigma, _terms, _A, _f):
     super(Square, self).__init__()
   
     self.terms = int(_terms)
     self.sig = float(_sigma)
     self.A = float(_A)
     self.f = float(_f)
-    self.p = float(_p)
+    self.p = math.pi
     
     g = 4./math.pi
     sine = []

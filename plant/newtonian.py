@@ -14,7 +14,7 @@ class Newtonian(Plant):
   def Reset(self):
     super(Newtonian, self).Reset()
     
-    self._X = self._X0
+    self._X = ( self._X0 / self.sample_rate )
     
   def Model(self, t):
     for i in range(4):
@@ -28,7 +28,7 @@ class Newtonian(Plant):
   
   def Online(self, _c1=[0.]):
     self.Valid(_c1)
-    self._X += np.array( _c1 + [0.]*(4-len(_c1)) )
+    self._X += (np.array( _c1 + [0.]*(4-len(_c1)) ) / self.sample_rate)
     super(Newtonian, self).Online()
     return self.t[-1], self.x[-4:]
   
