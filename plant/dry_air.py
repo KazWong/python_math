@@ -1,5 +1,5 @@
 import numpy as np
-from .plant import Plant
+from . import Plant
 
 class DryAir(Plant):
   def __init__(self, _sample_rate, _v, _T0, _di = None, _do = None):

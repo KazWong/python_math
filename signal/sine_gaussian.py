@@ -1,21 +1,16 @@
 import numpy as np
 import random
 import math
-from .signal import Signal
+from . import Signal
 
 class SineGaussian(Signal):
-  def __init__(self, _sigma, _A, _f, _p = 0.):
-    super(SineGaussian, self).__init__()
+  def __init__(self, clock, sigma, A, f, p = 0.):
+    super(SineGaussian, self).__init__(clock)
   
-    self.sig = float(_sigma)
-    self.A = float(_A)
-    self.f = float(_f)
-    self.p = float(_p)
-  
-  def Reset(self, _m, _c):
-    self.A = float(_A)
-    self.f = float(_f)
-    self.p = float(_p)
+    self.sig = float(sigma)
+    self.A = float(A)
+    self.f = float(f)
+    self.p = float(p)
       
   def Model(self, t):
-    return random.gauss(self.A*math.sin(2.*math.pi*self.f*t+self.p), self.sig)
+    return random.gauss(self.A*np.sin(2.*math.pi*self.f*t+self.p), self.sig)

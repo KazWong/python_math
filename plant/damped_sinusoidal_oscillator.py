@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from .plant import Plant
+from . import Plant
 
 class DampedSinOsc(Plant):
   def __init__(self, _sample_rate, _damping_ratio, _A, _angular_frequency, _phase_shift, _di = None, _do = None):

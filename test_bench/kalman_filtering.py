@@ -3,13 +3,13 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from ..plant.newtonian import Newtonian
-from ..signal.signal import Ideal
+from ..signal import Ideal
 from ..signal.sine_gaussian import SineGaussian
 from ..signal.linear_gaussian import LinearGaussian
 from ..bayesian_filtering.kalman_filter import KalmanFilter
 
 #plant
-X0 = [0., 5., 0., 0.]
+X0 = [0., 5., -10, 0.]
 sample_rate = 100.
 di = [Ideal(),
       Ideal(),
@@ -37,13 +37,12 @@ x = np.array([])
 K = np.array([])
 P = np.array([])
 u = [0., 0., 0., 0.]
-t = int(10 * sample_rate)
+t = int(2 * sample_rate)
 
 for i in range(t):
   _t, X = plant.Online(u)
   kf.Predict([u[2]])
   kf.Update(X[:2])
-  print(_t)
   
   K = np.append(K, kf.K)
   P = np.append(P, kf.P)

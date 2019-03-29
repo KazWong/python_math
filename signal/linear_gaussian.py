@@ -1,18 +1,14 @@
 import numpy as np
 import random
-from .signal import Signal
+from . import Signal
 
 class LinearGaussian(Signal):
-  def __init__(self, _sigma, _m, _c):
-    super(LinearGaussian, self).__init__()
+  def __init__(self, clock, sigma, m, c):
+    super(LinearGaussian, self).__init__(clock)
   
-    self.sig = float(_sigma)
-    self.m = float(_m)
-    self.c = float(_c)
-  
-  def Reset(self, _m, _c):
-    self.m = float(_m)
-    self.c = float(_c)
+    self.sig = float(sigma)
+    self.m = float(m)
+    self.c = float(c)
       
   def Model(self, t):
     return random.gauss(self.m * t + self.c, self.sig)
