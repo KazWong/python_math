@@ -2,49 +2,45 @@ import numpy as np
 from ..signal import Signal, Ideal, Time
 
 class Plant(object):
-  def __init__(self, _sample_rate, _di = None, _do = None, _di_size = None, _do_size = None):
-    self.sample_rate = float(_sample_rate)
-    self.sim_t = - 1./(self.sample_rate)
-    self.t = np.array([])
+  def __init__(self, clock, sample_rate, di = None, do = None, di_size = None, do_size = None):
+    self.sample_rate = float(sample_rate)
+    self.clock = clock
     self.x = np.array([])
 
-    if (_di_size is None):
-      if (isinstance(_di, Signal)):
-        self.di = _di
+    if (di_size is None):
+      if (isinstance(di, Signal)):
+        self.di = di
       else:
         self.di = Ideal()
     else:
-      for i in range(_di_size):
-        if (not isinstance(_di[i], Signal)):
+      for i in range(di_size):
+        if (not isinstance(di[i], Signal)):
           self.di = [Ideal()] * _di_size
         else:
-          self.di = _di
+          self.di = di
 
-    if (_do_size is None):
-      if (isinstance(_do, Signal)):
-        self.do = _do
+    if (do_size is None):
+      if (isinstance(do, Signal)):
+        self.do = do
       else:
         self.do = Ideal()
     else:
-      for i in range(_do_size):
-        if (not isinstance(_do[i], Signal)):
-          self.do = [Ideal()] * _do_size
+      for i in range(do_size):
+        if (not isinstance(do[i], Signal)):
+          self.do = [Ideal()] * do_size
         else:
-          self.do = _do
+          self.do = do
 
   def Reset(self):
-    self.sim_t = - 1./(self.sample_rate)
-    self.t = np.array([])
     self.x = np.array([])
     
   def Model(self, t):
     raise NotImplementedError()
   
-  def Offline(self, end_t):
-    sample = float(end_t) * (self.sample_rate) + 1
-    self.t = np.linspace(0., end_t, sample, endpoint=True)
-    self.x = np.array([self.Model(self.t[_]) for _ in range(int(sample))])
-    return self.t, self.x
+  def Offline(self, end_time):
+    clock.Offline(end_time)
+    self.x = np.array([self.Model(self.t[_]) for _ in clock.Range()])
+    return self.x
 
   def Online(self):
     self.sim_t = round(self.sim_t + 1./(self.sample_rate), 4)

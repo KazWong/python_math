@@ -11,4 +11,5 @@ class LinearGaussian(Signal):
     self.c = float(c)
       
   def Model(self, t):
-    return random.gauss(self.m * t + self.c, self.sig)
+    rand = self.sig * np.random.randn( len(t) )
+    return rand + (self.m * t + self.c)

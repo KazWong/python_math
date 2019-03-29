@@ -13,4 +13,5 @@ class SineGaussian(Signal):
     self.p = float(p)
       
   def Model(self, t):
-    return random.gauss(self.A*np.sin(2.*math.pi*self.f*t+self.p), self.sig)
+    rand = self.sig * np.random.randn( len(t) )
+    return rand + self.A*np.sin(2.*math.pi*self.f*t+self.p)
