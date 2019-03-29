@@ -18,11 +18,11 @@ class Square(Signal):
     sine = []
     for i in range(1, self.terms+1):
       h = 2*i-1
-      sine.append( SineGaussian(clock, self.sig, g*self.A/h, h*self.f) )
+      sine.append( SineGaussian(clock, 0.0, g*self.A/h, h*self.f) )
       if (i>1):
         sine[i-2].Cascade(sine[i-1])
 
-    self.sine = LinearGaussian(clock, 0., 0., self.A)
+    self.sine = LinearGaussian(clock, sigma, 0., self.A)
     self.sine.Cascade(sine[0])
     
   def Model(self, t):
