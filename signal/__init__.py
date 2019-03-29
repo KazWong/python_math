@@ -51,25 +51,26 @@ class Time:
     
   def Reset(self):
     self.step = (1./self._sampling_rate)%1 * 1e9
-    self.s = 0
-    self.ns = 0
-    self.timespace = np.array([0.])
+    self._s = 0
+    self._ns = -self.step
+    self.timespace = np.array([])
+    self.t = 0.
   
   def Offline(self, end_time):
     self.Reset()
     self.timespace = np.around(np.linspace(0., end_time, int(self._sampling_rate*end_time)+1), 10)
-    self.s = int(self.timespace[-1])
-    self.ns = int(self.timespace[-1]%1 * 1e9)
-    
-  def Tick(self):
-    self.ns += self.step
-    if (self.ns > 1e9):
-      self.s += 1
-      self.ns -= 1e9
-    self.timespace = np.append(self.timespace, float(self.s) + float( np.round(self.ns / 1e9, 10) ) )
+    self._s = int(self.timespace[-1])
+    self._ns = int(self.timespace[-1]%1 * 1e9)
+    self.t = self.timespace[-1]
   
-  def t(self):
-    return self.timespace[-1]
+  def Tick(self):
+    self._ns += self.step
+    if (self._ns > 1e9):
+      self._s += 1
+      self._ns -= 1e9
+    self.t = float(self._s) + float( np.round(self._ns / 1e9, 10) )
+    self.timespace = np.append(self.timespace, self.t )
+    return self.t
     
   def Hz(self):
     return self._sampling_rate
@@ -80,6 +81,10 @@ class Time:
   def Len(self):
     return len(self.timespace)
     
-  def Range(self):
-    return range(len(self.timespace))
+  def Range(self, end_time = None):
+    if (end_time is None):
+      return range( len(self.timespace) )
+    else:
+      return range( int(self._sampling_rate*end_time)+1 )
+  
   

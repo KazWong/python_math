@@ -1,60 +1,60 @@
 import numpy as np
-import math
 import matplotlib.pyplot as plt
-from scipy.fftpack import fft
-from ..signal import Signal, Ideal, Time
-from ..signal.linear_gaussian import LinearGaussian
+from ..plant.damped_sinusoidal_oscillator import DampedSinOsc
+from ..plant.newtonian import Newtonian
+from ..plant.dry_air import DryAir
+from ..signal import Ideal, Time
 from ..signal.sine_gaussian import SineGaussian
-from ..signal.pulse import Square, PWM
+from ..signal.linear_gaussian import LinearGaussian
 
 sampling_rate = 1000.;end_time = 4.
 clock = Time(sampling_rate)
 
 
+### Newtonian
+X0 = [0., 5., -10, 0.];sigma = 0.2;A = 0.0001;f = 1.;m = 0.;c = 0.
+di = [Ideal(),
+      Ideal(),
+      SineGaussian(clock, sigma, A, f),
+      Ideal()]
+do = [LinearGaussian(clock, sigma, m, c),
+      LinearGaussian(clock, sigma, m, c),
+      Ideal(),
+      Ideal()]    
+motion = Newtonian( clock, X0, di=di, do=do )
+off_motion = motion.Offline(end_time)
+off_motion = off_motion.reshape([-1, 4])
 
-sigma = 0.2;m = 1.;c = 1.
-y = np.around(np.linspace(c, m*end_time+c, clock.Len()), 3)
-yl = np.around(LinearGaussian(clock, 0.0, m, c).Offline(), 3)
-yl2 = LinearGaussian(clock, sigma, m, c).Offline()
-if (y != yl).any(): raise AssertionError()
-
-plt.subplot(511)
-plt.scatter(clock.timespace, yl2, c='g', s=0.5)
-plt.plot(clock.timespace, yl)
-plt.title("Linear")
-
-
-amp = 1.;frq = 1.;shift = 0.
-t = np.linspace(0., end_time, clock.Len())
-y = np.around(np.array( amp*np.sin(2.*math.pi*frq*t+shift) ), 3)
-ys = np.around(SineGaussian(clock, 0.0, amp, frq, shift).Offline(), 3)
-ys2 = np.around(SineGaussian(clock, sigma, amp, frq, shift).Offline(), 3)
-if (y != ys).any(): raise AssertionError()
-
-plt.subplot(512)
-plt.scatter(clock.timespace, ys2, c='g', s=0.5)
-plt.plot(clock.timespace, ys)
-plt.title("Sine")
+plt.subplot(311)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.scatter(clock.timespace, off_motion[:,0], c='r', s=0.5)
+plt.scatter(clock.timespace, off_motion[:,1], c='g', s=0.5)
+plt.scatter(clock.timespace, off_motion[:,2], c='b', s=0.5)
 
 
-terms = 40;amp = 4.;frq = 4.
-y = Square(clock, 0.0, terms, amp, frq).Offline()
-y2 = Square(clock, sigma, terms, amp, frq).Offline()
+### Dry Air
+time = 5;sigma = 0.01;volume = 1.;temperature = 25.5
+disturbance = LinearGaussian(clock, 0., 10., 5.)
+measurement_noise = LinearGaussian(clock, 3., 0., 0.)
+dry_air = DryAir(clock, volume, temperature, disturbance, measurement_noise)
+off_dry_air = dry_air.Offline(end_time)
 
-plt.subplot(513)
-plt.scatter(clock.timespace, y2, c='g', s=0.5)
-plt.plot(clock.timespace, y)
-plt.title("Sine Square")
+plt.subplot(312)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.scatter(clock.timespace, off_dry_air, c='g', s=0.5)
 
 
-terms = 40;amp = 4.;frq = 1.;d = 0.2
-y = PWM(clock, 0.0, terms, amp, frq, d).Offline()
-yw = PWM(clock, sigma, terms, amp, frq, d).Offline()
+### Damped Sinusoid
+damping_ratio = 0.1;amp = 10.;frq = 2.;shift = 0.
+damp = DampedSinOsc(clock, damping_ratio, amp, frq, shift)
+off_damp = damp.Offline(end_time)
 
-plt.subplot(514)
-plt.plot(clock.timespace, y)
-plt.scatter(clock.timespace, yw, c='g', s=0.5)
-plt.title("PWM")
+plt.subplot(313)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.scatter(clock.timespace, off_damp, c='g', s=0.5)
 
 
 plt.show()

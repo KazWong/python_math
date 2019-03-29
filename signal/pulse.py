@@ -9,7 +9,6 @@ from .linear_gaussian import LinearGaussian
 class Square(Signal):
   def __init__(self, clock, sigma, terms, A, f):
     super(Square, self).__init__(clock)
-  
     self.terms = int(terms)
     self.sig = float(sigma)
     self.A = float(A/2.)
@@ -34,7 +33,6 @@ class Square(Signal):
 class PWM(Signal):
   def __init__(self, clock, sigma, terms, A, f, d):
     super(PWM, self).__init__(clock)
-  
     self.terms = int(terms)
     self.sig = float(sigma)
     self.A = float(A)

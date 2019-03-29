@@ -3,17 +3,15 @@ import random
 from . import Plant
 
 class Newtonian(Plant):
-  def __init__(self, _sample_rate, _X0=[0.], _di = None, _do = None):
-    super(Newtonian, self).__init__(_sample_rate, _di, _do, 4, 4)
-    
-    self.Valid(_X0)
-    self._len = len(_X0)
-    self._X0 = np.array( _X0 + [0.]*(4-len(_X0)) )
+  def __init__(self, clock, X0=[0.], di = None, do = None):
+    super(Newtonian, self).__init__(clock, di, do, 4, 4)
+    self.Valid(X0)
+    self._len = len(X0)
+    self._X0 = np.array( X0 + [0.]*(4-len(X0)) )
     self.Reset()
 
   def Reset(self):
     super(Newtonian, self).Reset()
-    
     self._X = self._X0
     
   def Model(self, t):
@@ -23,14 +21,13 @@ class Newtonian(Plant):
     v = self._X[1] + self._X[2]*t + 0.3333*self._X[3]*t**2 + self.do[1].Online(t)
     a = self._X[2] + 0.6666*self._X[3]*t + self.do[2].Online(t)
     j = 1.3333*self._X[3] + self.do[3].Online(t)
-    
     return x, v, a, j
   
   def Online(self, _c1=[0.]):
     self.Valid(_c1)
     self._X += np.array( _c1 + [0.]*(4-len(_c1)) )
     super(Newtonian, self).Online()
-    return self.t[-1], self.x[-4:]
+    return self.x[-4:]
   
   def Valid(self, _l):
     if (isinstance(_l, list)):

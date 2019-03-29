@@ -1,6 +1,12 @@
 # python_math
 algorithm or math experiments
 
+Run:
+python3 -m python_math.[folder].[file]
+
+Example
+python3 -m python_ math.test_ bench.test_plant
+
 - linear filter  
   - s-Domain low pass filter  
 - monte carlo integration  
@@ -22,10 +28,15 @@ algorithm or math experiments
   - newtonian  
   - damped sinusoidal oscillator  
 - Signal
-  - Impulse  
+  - Square  
   - PWM
   - Sinusoid + Gaussain  
   - Linear + Gaussian  
 - Bayesian Filter  
   - Kalman Filter  
 - Test Bench  
+  - linear regression
+  - polynomial approximation
+  - test plant
+  - test signal
+  - kalman filter + newtonian plant

@@ -1,7 +1,6 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from scipy.fftpack import fft
 from ..signal import Signal, Ideal, Time
 from ..signal.linear_gaussian import LinearGaussian
 from ..signal.sine_gaussian import SineGaussian
@@ -24,8 +23,7 @@ clock.Reset()
 #Tick time and timespace consistency
 tick = np.array([])
 for i in range(int(sampling_rate*end_time)+1):
-  tick = np.append(tick, np.around(clock.t(), 3) )
-  clock.Tick()
+  tick = np.append(tick, np.around(clock.Tick(), 3) )
 timespace = np.around(clock.timespace, 3)
 if (tick[0] != timespace[0]) or (tick[0] != 0.0): 
   print(timespace[0])
@@ -36,19 +34,23 @@ if (tick[-1] != timespace[-1]) or (tick[-1] != end_time):
   print(tick[-1])
   print(end_time)
   raise AssertionError()
+if (tick.size != timespace.size):
+  raise AssertionError()
 if ( tick != timespace ).any(): 
   raise AssertionError()
 clock.Reset()
 
 #Tick after Offline
 clock.Offline(end_time)
-tick = np.array([])
-for i in np.arange(end_time, int(sampling_rate*2*end_time)+1):
-  tick = np.append(tick, np.around(clock.t(), 3) )
-  clock.Tick()
+tick = clock.timespace
+for i in range(int(sampling_rate*end_time)+1, int(sampling_rate*2*end_time)+1):
+  tick = np.append(tick, np.around(clock.Tick(), 3) )
 timespace = np.around(clock.timespace, 3)
 if (clock.timespace[0] != 0.): raise AssertionError()
-if (clock.timespace[-1] != 2*end_time): raise AssertionError()
+if (clock.timespace[-1] != 2*end_time): 
+  print(clock.timespace[-1])
+  print(2*end_time)
+  raise AssertionError()
 clock.Reset()
 
 
@@ -90,7 +92,7 @@ plt.plot(clock.timespace, y)
 plt.title("Sine Square")
 
 
-terms = 40;amp = 4.;frq = 1.;d = 0.2
+terms = 80;amp = 4.;frq = 1.;d = 0.2
 y = PWM(clock, 0.0, terms, amp, frq, d).Offline()
 yw = PWM(clock, sigma, terms, amp, frq, d).Offline()
 

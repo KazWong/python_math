@@ -2,8 +2,7 @@ import numpy as np
 from ..signal import Signal, Ideal, Time
 
 class Plant(object):
-  def __init__(self, clock, sample_rate, di = None, do = None, di_size = None, do_size = None):
-    self.sample_rate = float(sample_rate)
+  def __init__(self, clock, di = None, do = None, di_size = None, do_size = None):
     self.clock = clock
     self.x = np.array([])
 
@@ -38,12 +37,11 @@ class Plant(object):
     raise NotImplementedError()
   
   def Offline(self, end_time):
-    clock.Offline(end_time)
-    self.x = np.array([self.Model(self.t[_]) for _ in clock.Range()])
+    self.clock.Offline(end_time)
+    ran = self.clock.Range()
+    self.x = np.array([self.Model(self.clock.timespace[_]) for _ in ran])
     return self.x
 
   def Online(self):
-    self.sim_t = round(self.sim_t + 1./(self.sample_rate), 4)
-    self.t = np.append( self.t, self.sim_t )
-    self.x = np.append( self.x, self.Model(self.sim_t) )
-    return self.t[-1], self.x[-1]
+    self.x = np.append( self.x, self.Model(self.clock.t) )
+    return self.x[-1]

@@ -3,13 +3,12 @@ import numpy as np
 from . import Plant
 
 class DampedSinOsc(Plant):
-  def __init__(self, _sample_rate, _damping_ratio, _A, _angular_frequency, _phase_shift, _di = None, _do = None):
-    super(DampedSinOsc, self).__init__(_sample_rate, _di, _do)
-    
-    self._dr = float(_damping_ratio)
-    self._omega = 2.*math.pi*float(_angular_frequency)
-    self._p = float(_phase_shift)
-    self._A = float(_A)
+  def __init__(self, clock, damping_ratio, A, angular_frequency, phase_shift, di = None, do = None):
+    super(DampedSinOsc, self).__init__(clock, di, do)
+    self._dr = float(damping_ratio)
+    self._omega = 2.*math.pi*float(angular_frequency)
+    self._p = float(phase_shift)
+    self._A = float(A)
     self._g = math.sqrt(1.-self._dr**2.)
     self.Reset()
     
