@@ -82,9 +82,9 @@ plt.plot(clock.timespace, ys)
 plt.title("Sine")
 
 
-terms = 40;amp = 4.;frq = 4.
-y = Square(clock, 0.0, terms, amp, frq).Offline()
-y2 = Square(clock, sigma, terms, amp, frq).Offline()
+terms = 40;amp = 4.;frq = 4.;shift = math.pi/3
+y = Square(clock, 0.0, terms, amp, frq, shift).Offline()
+y2 = Square(clock, sigma, terms, amp, frq, shift).Offline()
 
 plt.subplot(513)
 plt.scatter(clock.timespace, y2, c='g', s=0.5)
@@ -92,9 +92,9 @@ plt.plot(clock.timespace, y)
 plt.title("Sine Square")
 
 
-terms = 80;amp = 4.;frq = 1.;d = 0.2
-y = PWM(clock, 0.0, terms, amp, frq, d).Offline()
-yw = PWM(clock, sigma, terms, amp, frq, d).Offline()
+terms = 80;amp = 4.;frq = 4.;d = 0.5;shift = 0.
+y = PWM(clock, 0.0, terms, amp, frq, d, shift).Offline()
+yw = PWM(clock, sigma, terms, amp, frq, d, shift).Offline()
 
 plt.subplot(514)
 plt.plot(clock.timespace, y)
