@@ -9,7 +9,28 @@ from ..signal.pulse import Square, PWM
 sampling_rate = 1000.;end_time = 4.
 clock = Time(sampling_rate)
 
-#Offline time
+# step verify
+l = np.array([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+c = Time(10).Offline(1.0)
+if (c != l).any(): 
+  print(c != l)
+  print(c)
+  print(l)
+  raise AssertionError()
+l = np.array([0.0, 0.090909, 0.181818, 0.272727, 0.363636, 0.454545, 0.545455, 0.636364, 0.727273, 0.818182, 0.909091, 1.0])
+c = np.around( Time(11).Offline(1.0), 6)
+if (c != l).any(): 
+  print(c)
+  print(l)
+  raise AssertionError()
+l = np.array([0.0, 0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889, 1.0])
+c = np.around( Time(9).Offline(1.0), 6)
+if (c != l).any(): 
+  print(c)
+  print(l)
+  raise AssertionError()
+
+# Offline time
 clock.Offline(end_time)
 if (clock.Hz() != sampling_rate): raise AssertionError()
 if (clock.T() != 1./sampling_rate): raise AssertionError()
@@ -20,7 +41,7 @@ if (clock.timespace[-1] != end_time):
   raise AssertionError()
 clock.Reset()
 
-#Tick time and timespace consistency
+# Tick time and timespace consistency
 tick = np.array([])
 for i in range(int(sampling_rate*end_time)+1):
   tick = np.append(tick, np.around(clock.Tick(), 3) )
@@ -40,7 +61,7 @@ if ( tick != timespace ).any():
   raise AssertionError()
 clock.Reset()
 
-#Tick after Offline
+# Tick after Offline
 clock.Offline(end_time)
 tick = clock.timespace
 for i in range(int(sampling_rate*end_time)+1, int(sampling_rate*2*end_time)+1):
@@ -54,7 +75,7 @@ if (clock.timespace[-1] != 2*end_time):
 clock.Reset()
 
 
-#Offline Signal test
+# Offline Signal test
 clock.Offline(end_time)
 
 sigma = 0.2;m = 1.;c = 1.

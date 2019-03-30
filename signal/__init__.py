@@ -50,7 +50,7 @@ class Time:
     self.Reset()
     
   def Reset(self):
-    self.step = (1./self._sampling_rate)%1 * 1e9
+    self.step = np.round( (1./self._sampling_rate)%1 * 1e9, 1 )
     self._s = 0
     self._ns = -self.step
     self.timespace = np.array([])
@@ -58,17 +58,15 @@ class Time:
   
   def Offline(self, end_time):
     self.Reset()
-    self.timespace = np.around(np.linspace(0., end_time, int(self._sampling_rate*end_time)+1), 10)
-    self._s = int(self.timespace[-1])
-    self._ns = int(self.timespace[-1]%1 * 1e9)
-    self.t = self.timespace[-1]
+    self.timespace = np.array([self.Tick() for _ in range( int(self._sampling_rate*end_time)+1 )])
+    return self.timespace
   
   def Tick(self):
-    self._ns += self.step
+    self._ns = np.round(self._ns + self.step, 1)
     if (self._ns > 1e9):
       self._s += 1
       self._ns -= 1e9
-    self.t = float(self._s) + float( np.round(self._ns / 1e9, 10) )
+    self.t = np.round( self._s + self._ns / 1e9, 9)
     self.timespace = np.append(self.timespace, self.t )
     return self.t
     
