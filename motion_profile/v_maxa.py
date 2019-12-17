@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-T = 2.
 V0 = 0.
 Vn = 1.5
 A0 = 0.
@@ -20,7 +19,6 @@ T11 = 3*((-v0 + vn)*math.sqrt(9*a0**2 - a0*amax + a0*an - 9*a0 + amax**2 - amax*
 T22 = 3*(v0 - vn)*(-a0 - amax - an + math.sqrt(9*a0**2 - a0*amax + a0*an - 9*a0 + amax**2 - amax*an))/(-8*a0**2 + 3*a0*amax + a0*an + 9*a0 + 3*amax*an + an**2)
 T = min([n for n in [T11, T22]  if n>0])
 
-#T=3
 
 print('T11 = ', T11)
 print('T22 = ', T22)

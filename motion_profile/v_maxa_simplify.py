@@ -1,12 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
-T = 2.
-V0 = 0.
-Vn = 1.5
-A0 = 0.
+#This algo assume A0, An is 0
+A0 = 0.0
 An = 0.0
 
+#variable
+V0 = 0.
+Vn = 1.5
+MaxA = 1.5
+
+T = 3*(Vn - V0)/(2*MaxA)
+print('T = ', T)
 
 T2 = T*T
 T3 = T2*T
@@ -34,7 +40,7 @@ jerk = 2*a[2] + 6*a[3]*t1
 for i in range(4):
   print('a[', i ,'] = ', a[i])
 
-plt.suptitle('va')
+plt.suptitle('v maxa, assume A0, An is 0.0')
 plt.subplot(411)
 plt.xlabel('t')
 plt.ylabel('pos')
@@ -51,5 +57,3 @@ plt.subplot(414)
 plt.ylabel('jerk')
 plt.plot(t1, jerk)
 plt.show()
-  
-
