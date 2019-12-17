@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-T = 2000.
+T = 10.
 X0 = 0.
-Xn = 100.
+Xn = 0.5
 V0 = 0.
-Vn = 0.
+Vn = 1.
 A0 = 0.
 An = 0.
 J0 = 0.
@@ -50,6 +50,7 @@ jerk = 6*a[3] + 24*a[4]*t1 + 60*a[5]*t2 + 120*a[6]*t3 + 210*a[7]*t4
 for i in range(8):
   print(a[i])
 
+plt.suptitle('xvaj')
 plt.subplot(411)
 plt.xlabel('t')
 plt.ylabel('pos')
