@@ -8,15 +8,8 @@ A0 = 0.
 An = 0.0001
 MaxA = 1.124975
 
-
-v0 = V0
-vn = Vn
-a0 = A0
-an = An
-amax = MaxA
-
-T11 = 3*((-v0 + vn)*math.sqrt(9*a0**2 - a0*amax + a0*an - 9*a0 + amax**2 - amax*an) - (v0 - vn)*(a0 + amax + an))/(-8*a0**2 + 3*a0*amax + a0*an + 9*a0 + 3*amax*an + an**2)
-T22 = 3*(v0 - vn)*(-a0 - amax - an + math.sqrt(9*a0**2 - a0*amax + a0*an - 9*a0 + amax**2 - amax*an))/(-8*a0**2 + 3*a0*amax + a0*an + 9*a0 + 3*amax*an + an**2)
+T11 = 3*((-V0 + Vn)*math.sqrt(9*A0**2 - A0*MaxA + A0*An - 9*A0 + MaxA**2 - MaxA*An) - (V0 - Vn)*(A0 + MaxA + An))/(-8*A0**2 + 3*A0*MaxA + A0*An + 9*A0 + 3*MaxA*An + An**2)
+T22 = 3*(V0 - Vn)*(-A0 - MaxA - An + math.sqrt(9*A0**2 - A0*MaxA + A0*An - 9*A0 + MaxA**2 - MaxA*An))/(-8*A0**2 + 3*A0*MaxA + A0*An + 9*A0 + 3*MaxA*An + An**2)
 T = min([n for n in [T11, T22]  if n>0])
 
 
@@ -37,7 +30,7 @@ B.reshape([-1, 1])
 a = np.linalg.inv(A).dot(B)
 
 
-t1 = np.linspace(0, T, T*10)
+t1 = np.linspace(0, T, T*1000)
 t2 = t1*t1
 t3 = t2*t1
 

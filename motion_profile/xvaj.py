@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-T = 10.
+T = 2.5
 X0 = 0.
-Xn = 0.5
+Xn = 0.8
 V0 = 0.
-Vn = 1.
+Vn = 1.5
 A0 = 0.
 An = 0.
 J0 = 0.
@@ -34,7 +34,7 @@ B.reshape([-1, 1])
 a = np.linalg.inv(A).dot(B)
 
 
-t1 = np.linspace(0, T, T*10)
+t1 = np.linspace(0, T, T*1000)
 t2 = t1*t1
 t3 = t2*t1
 t4 = t3*t1

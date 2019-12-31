@@ -22,7 +22,7 @@ B.reshape([-1, 1])
 a = np.linalg.inv(A).dot(B)
 
 
-t1 = np.linspace(0, T, T*10)
+t1 = np.linspace(0, T, T*1000)
 t2 = t1*t1
 t3 = t2*t1
 
