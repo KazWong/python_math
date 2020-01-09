@@ -4,7 +4,7 @@
 double vt = 0.0;
 double vn = 0.5;
 double at = 0.0;
-double an = 0.0;
+//double an = 0.0; Assume an = 0.0
 double amax = 1.12;
 
 /*bool MatInvert(float m[16], float invOut[16]) {
@@ -42,28 +42,26 @@ double amax = 1.12;
 }*/
   
 int main(int argc, char** argv) {
-	double T22=0.0, T11=0.0;
-	if (at == 0.0 && an == 0.0) {
-		T22 = abs( 3*(vn - v0)/(2*amax) );
+	double T=0.0, T22=0.0, T11=0.0;
+	double a[4];
+	double det;
+	
+	if (at == 0.0) {
+		T = abs(3*(vn - v0)/(2*amax));
 	} else {
-		T11 = 3*((-vt + vn)*sqrt(9*at*at - at*amax + at*an - 9*at + amax*amax - amax*an) - (vt - at)*(at + amax + an))/(-8*at*at + 3*at*amax + at*an + 9*at + 3*amax*an + an*an);
-		T22 = 3*(vt - vn)*(-at - amax - an + sqrt(9*at*at - at*amax + at*an - 9*at + amax*amax - amax*an))/(-8*at*at + 3*at*amax + at*an + 9*at + 3*amax*an + an*an);
+		T11 = abs( 3*(vn - vt)*( at + amax + sqrt(amax*(amax - at)) )/(at*(at + 3*amax)) );
+		T22 = abs( 3*(vn - vt)*( at + amax - sqrt(amax*(amax - at)) )/(at*(at + 3*amax)) );
+		T = (T22>T11)? T11:T22;
 	}
 	
-	double T = T22;
 	double m[8] = {1, T, T*T, T*T*T, 0, 1, 2*T, 3*T*T};
-	
-	printf("T11 = %f\n", T11);
-	printf("T22 = %f\n", T22);
-	
-	double a[4];
-	double det =  1./(m[2] * m[7] - m[3] * m[6]);
+	det =  1./(m[2] * m[7] - m[3] * m[6]);
 	
 	a[0] = vt;
 	a[1] = at;
 	a[2] = det*( vt*( -m[0] * m[7] + m[4] * m[3] ) + at*( -m[1] * m[7] + m[3] * m[5] ) + vn*( m[7] ) + an*( -m[3] ) );
 	a[3] = det*( vt*( m[0] * m[6] - m[4] * m[2] ) + at*( m[1] * m[6] - m[2] * m[5] ) + vn*( -m[6] ) + an*( m[2] ) );
 	
-	
+	//vel  = a[0] + a[1]*t1 + a[2]*t2 + a[3]*t3
 	
 }
