@@ -46,13 +46,14 @@ int main(int argc, char** argv) {
 	double a[4];
 	double det;
 	
-	if (at == 0.0) {
+	/*if (at == 0.0) {
 		T = abs(3*(vn - v0)/(2*amax));
 	} else {
 		T11 = abs( 3*(vn - vt)*( at + amax + sqrt(amax*(amax - at)) )/(at*(at + 3*amax)) );
 		T22 = abs( 3*(vn - vt)*( at + amax - sqrt(amax*(amax - at)) )/(at*(at + 3*amax)) );
 		T = (T22>T11)? T11:T22;
-	}
+	}*/
+	T = 0.8
 	
 	double m[8] = {1, T, T*T, T*T*T, 0, 1, 2*T, 3*T*T};
 	det =  1./(m[2] * m[7] - m[3] * m[6]);
