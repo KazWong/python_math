@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-V0 = 0.5
-Vn = 0.0
-A0 = 0.0
-An = 0.0001
-Amax = 2.124975
+V0 = 0.944856
+Vn = 1.0
+A0 = 1.7227
+An = 0.0000
+Amax = 2.0
 T = 0.0
 
 
@@ -19,18 +19,25 @@ if (Amax != 0.0 and T == 0.0):
 	'''
 	T11 = 3*((-V0 + Vn)*math.sqrt(9*A0**2 - A0*Amax + A0*An - 9*A0 + Amax**2 - Amax*An) - (V0 - Vn)*(A0 + Amax + An))/(-8*A0**2 + 3*A0*Amax + A0*An + 9*A0 + 3*Amax*An + An**2)
 	T22 = 3*(V0 - Vn)*(-A0 - Amax - An + math.sqrt(9*A0**2 - A0*Amax + A0*An - 9*A0 + Amax**2 - Amax*An))/(-8*A0**2 + 3*A0*Amax + A0*An + 9*A0 + 3*Amax*An + An**2)
-	'''
+  '''
 
+	if (V0 > Vn):
+		Amax = -1*Amax
 	if (A0 == 0.0 and An == 0.0):
 		T = abs(3*(Vn - V0)/(2*Amax))
 	else:
 		T11 = 3*(Vn - V0)*( math.sqrt(Amax**2 + An*A0 - Amax*(An + A0)) + (A0 + An + Amax) ) / ((A0 + An + Amax)**2 + Amax*(An + A0) - A0*An - Amax**2)
 		T22 = 3*(Vn - V0)*( -math.sqrt(Amax**2 + An*A0 - Amax*(An + A0)) + (A0 + An + Amax) ) / ((A0 + An + Amax)**2 + Amax*(An + A0) - A0*An - Amax**2)
-		T = min([abs(T11), abs(T22)])#min([n for n in [T11, T22]  if n>0])
-		
-	print('T11 = ', T11)
-	print('T22 = ', T22)
-
+		#T = min([abs(T11), abs(T22)])#min([n for n in [T11, T22]  if n>0])
+		print('T11 = ', T11)
+		print('T22 = ', T22)
+		Tl = []
+		if (T11 > 0):
+			Tl.append(T11)
+		if (T22 > 0):
+			Tl.append(T22)
+		T = min(Tl)
+	print('T = ', T)
 	
 
 T2 = T*T
@@ -48,13 +55,13 @@ B = np.array([V0, A0, Vn, An])
 a = np.linalg.inv(A).dot(B)
 
 '''
-m = np.array( [1, T, T*T, T*T*T, 0, 1, 2*T, 3*T*T])
-det =  1./(m[2] * m[7] - m[3] * m[6])
+m = np.array( [1., T, T*T, T*T*T, 0., 1., 2.*T, 3.*T*T])
+det =  1./(m[3]*T)
 a = np.array([
      V0, 
      A0,
-     det*( V0*( -m[0] * m[7] + m[4] * m[3] ) + A0*( -m[1] * m[7] + m[3] * m[5] ) + Vn*( m[7] ) + An*( -m[3] ) ),
-     det*( V0*( m[0] * m[6] - m[4] * m[2] ) + A0*( m[1] * m[6] - m[2] * m[5] ) + Vn*( -m[6] ) + An*( m[2] ) )] )
+     det*( V0*( -m[7] ) + A0*( -m[1] * m[7] + m[3] ) + Vn*( m[7] ) + An*( -m[3] ) ),
+     det*( V0*( m[6] ) + A0*( m[1] * m[6] - m[2] ) + Vn*( -m[6] ) + An*( m[2] ) )] )
 print(c)
 '''
 

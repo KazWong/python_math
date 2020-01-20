@@ -55,13 +55,14 @@ int main(int argc, char** argv) {
 	}*/
 	T = 0.8
 	
-	double m[8] = {1, T, T*T, T*T*T, 0, 1, 2*T, 3*T*T};
-	det =  1./(m[2] * m[7] - m[3] * m[6]);
+	double m[8] = {1., T, T*T, T*T*T, 0., 1., 2.*T, 3.*T*T};
+	det =  1./(m[3]*T);
 	
 	a[0] = vt;
 	a[1] = at;
-	a[2] = det*( vt*( -m[0] * m[7] + m[4] * m[3] ) + at*( -m[1] * m[7] + m[3] * m[5] ) + vn*( m[7] ) + an*( -m[3] ) );
-	a[3] = det*( vt*( m[0] * m[6] - m[4] * m[2] ) + at*( m[1] * m[6] - m[2] * m[5] ) + vn*( -m[6] ) + an*( m[2] ) );
+	a[2] = det*( vt*( -m[7] ) + at*( -m[1] * m[7] + m[3] ) + vn*( m[7] ) + an*( -m[3] ) );
+	a[3] = det*( vt*( m[6] ) + at*( m[1] * m[6] - m[2] ) + vn*( -m[6] ) + an*( m[2] ) );
+	
 	
 	//vel  = a[0] + a[1]*t1 + a[2]*t2 + a[3]*t3
 	

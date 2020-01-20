@@ -9,12 +9,10 @@ dt = 0.05
 Vt =   np.array([0.00000])
 At =   np.array([0.00000])
 St =   np.array([0.00000])
-Jt =   np.array([])
+Jt =   np.array([0.00000])
 t = np.array([])
 total_T = 0.0
 total_n = 0
-t = 0.0
-T = 0.0
 
 '''
 Vn =   np.array([2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 
@@ -32,9 +30,16 @@ Amax = np.array([2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 2.00000, 
 
 
 ### Vn = 2 -> 0 -> -2 ###
-Vn =   np.array([1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000,
+Vn =   np.array([1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 1.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,
                  0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
                  -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000, -1.0000])
+
+#Vn = np.ones((100,))
+#np.append(Vn,np.zeros(100,))
+#np.concatenate([Vn,-1*np.ones((100,))],axis=0)
+#print(Vn)
+#An = [0]*300
+#Amax = [2]*300
 An =   np.array([0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 
                  0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000,
                  0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000, 0.00000])
@@ -83,36 +88,27 @@ Amax = np.array([-2.0000, -2.0000, -2.0000, -2.0000, -2.0000, -2.0000, -2.0000, 
 '''
 #
 
-
 def Profile(Vn, Amax, i):
-  global total_T, St, Vt, At, Jt, total_n, dt, t, T
+  global total_T, St, Vt, At, Jt, total_n, dt
+  t = dt
+  T = 0.0
   
   ### solve T using maximum accel ###
-  '''
-  if (Vt[-1] > Vn):
-	  Amax = -1*Amax
-  if (At[-1] == 0.0):#( (At[-1] > -1e-8 and At[-1] < 1e-8) and (An[i] > -1e-8 and An[i] < 1e-8) ):
+  if (Vn < Vt[-1]):
+    Amax = -1*Amax
+  if ( (At[-1] > -1e-8 and At[-1] < 1e-8) and (An[i] > -1e-8 and An[i] < 1e-8) ):
 	  T = 3*(Vn - Vt[-1])/(2*Amax)
-	  print('At = 0.0', T)
   else:
-    print('V', Vn, Vt[-1], 'A', Amax, At[-1])
-    rt = math.sqrt(Amax**2 + An[i]*At[-1] - Amax*(An[i] + At[-1]))
+    if (abs(At[-1]) > abs(Amax)):
+  	  rt = 0
+  	  Amax = At[-1]
+    else:
+      rt = math.sqrt(Amax**2 + An[i]*At[-1] - Amax*(An[i] + At[-1]))
     T11 = 3*(Vn - Vt[-1])*( rt + (At[-1] + An[i] + Amax) ) / ((At[-1] + An[i] + Amax)**2 + Amax*(An[i] + At[-1]) - At[-1]*An[i] - Amax**2)
     T22 = 3*(Vn - Vt[-1])*( -rt + (At[-1] + An[i] + Amax) ) / ((At[-1] + An[i] + Amax)**2 + Amax*(An[i] + At[-1]) - At[-1]*An[i] - Amax**2)
+    T = min([abs(T11), abs(T22)])
 
-    Tl = []
-    if (T11 > 0):
-      Tl.append(T11)
-    if (T22 > 0):
-      Tl.append(T22)
-      T = min(Tl)
-      t = 0.0
-    print('T', T, T11, T22)
-  '''
-  
-  T = 0.75
-  t = 0.0
-  
+  print(T)
   if (T > 1e-8 or T < -1e-8):
     T2 = T*T
     T3 = T2*T
@@ -135,17 +131,30 @@ def Profile(Vn, Amax, i):
 								det*( Vt[-1]*( -m[7] ) + At[-1]*( -m[1] * m[7] + m[3] ) + Vn*( m[7] ) + An[i]*( -m[3] ) ),
 								det*( Vt[-1]*( m[6] ) + At[-1]*( m[1] * m[6] - m[2] ) + Vn*( -m[6] ) + An[i]*( m[2] ) )] )
 		'''
-  dt2 = dt
-  if (dt2 > T):
-	  dt2 = T	
-  print('t', total_T, t, dt2)
-  print()
+
+    ### Plot ###
+    if (t > abs(T)):
+  	  t = T
+  else:
+    #a = np.array([Vt[-1], 0, 0, 0])
+    T2 = T*T
+    T3 = T2*T
+
+    
+    ### solve coefficient ###
+    A = np.array([[1, 0,   0,    0], 
+                  [0, 1,   0,    0], 
+                  [1, T,  T2,   T3], 
+                  [0, 1, 2*T, 3*T2]])
+    B = np.array([Vt[-1], At[-1], Vn, An[i]])
+    a = np.linalg.inv(A).dot(B)
+    
+    
+    
   
-  ### Plot ###
-  t1 = np.linspace(t, abs(dt + t), abs(dt2 + t)*1000)
+  t1 = np.linspace(0, abs(t), abs(t)*1000)
   t2 = t1*t1
   t3 = t2*t1
-  t = dt2 + t
 
   pos  = St[-1] + a[0]*t1 + a[1]*t2/2 + a[2]*t2/3 + a[3]*t3/4
   vel  = a[0] + a[1]*t1 + a[2]*t2 + a[3]*t3
@@ -161,19 +170,129 @@ def Profile(Vn, Amax, i):
   Vt = np.append(Vt, vel)
   At = np.append(At, acc)
   Jt = np.append(Jt, jerk)
-  total_T = dt2 + total_T
+  total_T = t + total_T
+  total_n = len(pos) + total_n
+  
+  print('3rd', t, Vt[-1], At[-1],Jt[-1])
+  
+
+def ProfileA0J0(Vn, Amax, i):
+  global total_T, St, Vt, At, Jt, total_n, dt
+  t = dt
+  T = 0.0
+  
+
+  ### solve T using maximum accel ###
+  if (Vn < Vt[-1]):
+    Amax = -1*Amax
+    print(Amax)
+  
+  if ((Jt[-1] > -1e-8 and Jt[-1] < 1e-8)):
+    T = (Vn - Vt[-1])/At[-1]
+  else:
+    p = 6*(At[-1] - Amax)/Jt[-1]
+    q = 12*At[-1]*(At[-1] - Amax)/Jt[-1]**2
+    r = 12*(Vt[-1] - Vn)*(At[-1] - Amax)/Jt[-1]**2
+
+    y1,y2,y3 = np.roots([1,p,q,r])
+    
+    '''
+    a = (3*q - p**2)/3
+    b = (2*p**3 - 9*p*q + 27*r)/27
+    c = (b**2)/4 + (a**3)/27
+    print([a,b,c])
+    print(p,q,r,a,b,c)
+    
+    A = float( -b/2. + float( (b**2.)/4. + (a**3.)/27. )**(1./2.) )**(1./3.)
+    B = float( -b/2. - float( (b**2.)/4. + (a**3.)/27. )**(1./2.) )**(1./3.)
+    
+    
+    y1 = A + B
+    y2 = -(A + B)/2. + complex(0, 1)*math.sqrt(3)*(A - B)/2
+    y3 = -(A + B)/2. - complex(0, 1)*math.sqrt(3)*(A - B)/2
+    
+    if (abs(y1.imag) > abs(y2.imag)):
+      if (abs(y2.imag) > abs(y3.imag)):
+        T = y3.real
+      else:
+        T = y2.real
+    else:
+      if (abs(y1.imag) > abs(y3.imag)):
+        T = y3.real
+      else:
+        T = y1.real
+    '''
+
+    y = []
+    if abs(y1.imag)<1e-7 and y1>0:
+      y.append(y1.real)
+    if abs(y2.imag)<1e-7 and y2>0:
+      y.append(y2.real)
+    if abs(y3.imag)<1e-7 and y3>0:
+      y.append(y3.real)
+
+    print("y1,y2,y3,T", y1, y2, y3, T)
+    print("y", y)
+    
+    if y is not None:
+      T = min(y)
+    else:
+      raise 
+        
+
+  if (T > 1e-8 or T < -1e-8):
+    T2 = T*T
+    T3 = T2*T
+
+    ### solve coefficient ###
+    A = np.array([[1, 0,   0,    0], 
+                  [0, 1,   0,    0], 
+                  [0, 0,   2,    0],
+                  [1, T,  T2,   T3]])
+    B = np.array([Vt[-1], At[-1], Jt[-1], Vn])
+    a = np.linalg.inv(A).dot(B)
+
+    ### Plot ###
+    if (t > abs(T)):
+  	  t = T
+  else:
+    a = np.array([Vt[-1], 0, 0, 0])
+  
+  t1 = np.linspace(0, abs(t), abs(t)*1000)
+  t2 = t1*t1
+  t3 = t2*t1
+
+  pos  = St[-1] + a[0]*t1 + a[1]*t2/2 + a[2]*t2/3 + a[3]*t3/4
+  vel  = a[0] + a[1]*t1 + a[2]*t2 + a[3]*t3
+  acc  = a[1] + 2*a[2]*t1 + 3*a[3]*t2
+  jerk = 2*a[2] + 6*a[3]*t1
+  print('v,a,j',vel,acc,jerk)
+  
+  pos = np.delete(pos, 0)
+  vel = np.delete(vel, 0)
+  acc = np.delete(acc, 0)
+  jerk = np.delete(jerk, 0)
+    
+  St = np.append(St, pos)
+  Vt = np.append(Vt, vel)
+  At = np.append(At, acc)
+  Jt = np.append(Jt, jerk)
+  total_T = t + total_T
   total_n = len(pos) + total_n
 
 
-for i in range(r):
-  Profile(Vn[i], Amax[i], i)
+Profile(Vn[0], Amax[0], 0)
+for i in range(1, r):
+  print ('i',i)
+  ProfileA0J0(Vn[i], Amax[i], i)
 
 t1 = np.linspace(0, total_T, total_n)
 St = np.delete(St, 0)
 Vt = np.delete(Vt, 0)
 At = np.delete(At, 0)
+Jt = np.delete(Jt, 0)
 
-plt.suptitle('v maxa')
+plt.suptitle('v maxa a0 j0')
 
 plt.subplot(211)
 line_S, = plt.plot(t1, St, label='S')
@@ -190,16 +309,16 @@ plt.title("SVAJ")
 
  
 yy = abs(fft(Vt)/total_n)
-yy_half = yy[range(int(total_n/40))]
+yy_half = yy[range(int(total_n/28))]
 xx = np.arange(len(Vt))
-xx_halft = xx[range(int(total_n/40))]
+xx_halft = xx[range(int(total_n/28))]
 plt.subplot(212) 
 line_fftV, = plt.plot(xx_halft, yy_half, label='V') 
 
 yy = abs(fft(At)/total_n)
-yy_half = yy[range(int(total_n/40))]
+yy_half = yy[range(int(total_n/28))]
 xx = np.arange(len(At))
-xx_halft = xx[range(int(total_n/40))]
+xx_halft = xx[range(int(total_n/28))]
 plt.subplot(212) 
 line_fftA, = plt.plot(xx_halft, yy_half, label='A') 
 plt.xlabel('Freq')
