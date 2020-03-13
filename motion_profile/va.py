@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-V0 = 0.944856
+V0 = 0.0
 Vn = 1.0
 A0 = 1.7227
 An = 0.0000

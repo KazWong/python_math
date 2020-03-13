@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math
 import rospy
@@ -10,34 +10,33 @@ from matplotlib.animation import FuncAnimation
 
 lock = threading.Lock()
 fig, ax = plt.subplots()
-xdata, ydata, colors = [], [], [] #del x[:]
+xdata, ydata = [], [] #del x[:]
+ln, = plt.plot([], [], 'ro', markersize=3, animated=True)
 
 def callback(scan):
-  global xdata, ydata, colors
+  global xdata, ydata
   ranges = list(scan.ranges)
-  inten = list(scan.intensities)
+  inten = scan.intensities
   
-  x, y, c = [], [], []
+  x, y = [], []
   for i in range(len(ranges)):
     if (ranges[i] > scan.range_min and ranges[i] < scan.range_max):
       y.append(math.cos(scan.angle_min+scan.angle_increment*i) * ranges[i])
       x.append(math.sin(scan.angle_min+scan.angle_increment*i) * ranges[i])
-      c.append(inten[i]/47)
   
   lock.acquire()
   xdata = x
   ydata = y
-  colors = c
   lock.release()
 
 def init():
   ax.set_xlim(-5.0, 5.0)
   ax.set_ylim(-5.0, 5.0)
-  return ax.plot([], [], animated=True)
+  return ln,
 
 def update(frame):
   lock.acquire()
-  ln = ax.scatter(xdata, ydata, s=3, c=colors, animated=True)
+  ln.set_data(xdata, ydata)
   lock.release()
   return ln,
     
