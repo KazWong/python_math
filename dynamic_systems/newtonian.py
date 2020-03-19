@@ -1,8 +1,8 @@
 import numpy as np
 import random
-from . import Plant
+from . import Dynsys
 
-class Newtonian(Plant):
+class Newtonian(Dynsys):
   def __init__(self, clock, X0=[0.], di = None, do = None):
     super(Newtonian, self).__init__(clock, di, do, 4, 4)
     self.Valid(X0)

@@ -1,7 +1,7 @@
 import numpy as np
 from ..signal import Signal, Ideal, Time
 
-class Plant(object):
+class Dynsys(object):
   def __init__(self, clock, di = None, do = None, di_size = None, do_size = None):
     self.clock = clock
     self.x = np.array([])

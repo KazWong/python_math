@@ -1,8 +1,8 @@
 import math
 import numpy as np
-from . import Plant
+from . import Dynsys
 
-class DampedSinOsc(Plant):
+class DampedSinOsc(Dynsys):
   def __init__(self, clock, damping_ratio, A, angular_frequency, phase_shift, di = None, do = None):
     super(DampedSinOsc, self).__init__(clock, di, do)
     self._dr = float(damping_ratio)

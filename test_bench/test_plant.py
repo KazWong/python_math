@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ..plant.damped_sinusoidal_oscillator import DampedSinOsc
-from ..plant.newtonian import Newtonian
-from ..plant.dry_air import DryAir
+from ..dynamic_systems.damped_sinusoidal_oscillator import DampedSinOsc
+from ..dynamic_systems.newtonian import Newtonian
+from ..dynamic_systems.dry_air import DryAir
 from ..signal import Ideal, Time
 from ..signal.sine_gaussian import SineGaussian
 from ..signal.linear_gaussian import LinearGaussian

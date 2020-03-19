@@ -1,7 +1,7 @@
 import numpy as np
-from . import Plant
+from . import Dynsys
 
-class DryAir(Plant):
+class DryAir(Dynsys):
   def __init__(self, clock, v, T0, di = None, do = None):
     super(DryAir, self).__init__(clock, di, do)
     self._v = float(v)

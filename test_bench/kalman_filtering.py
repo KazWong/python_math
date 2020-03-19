@@ -2,7 +2,7 @@ import math
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from ..plant.newtonian import Newtonian
+from ..dynamic_systems.newtonian import Newtonian
 from ..signal import Ideal, Time
 from ..signal.sine_gaussian import SineGaussian
 from ..signal.linear_gaussian import LinearGaussian

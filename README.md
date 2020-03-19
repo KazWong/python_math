@@ -23,7 +23,7 @@ python3 -m python_ math.test_ bench.test_plant
   - 5 order  
   - 7 order  
 - TODO: FFT  
-- Plant  
+- Dynsys  
   - Dry Air  
   - newtonian  
   - damped sinusoidal oscillator  
