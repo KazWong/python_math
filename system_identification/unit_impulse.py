@@ -22,11 +22,11 @@ plt.plot(omega, phase)
 
 
 mag, phase, omega = H.freqresp(omega)
+mag = np.reshape(mag, -1)
+phase = np.reshape(phase, -1)
 plt.figure()
 plt.grid(True)
 plt.xlim(0, 4)
-mag = np.reshape(mag, -1)
-phase = np.reshape(phase, -1)
 plt.plot(omega, mag)
 plt.plot(omega, phase)
 
@@ -38,16 +38,16 @@ plt.plot(T, yout)
 
 #impulse response
 N = 201
-yout1 = [H( np.exp( complex(0, 2*math.pi*k/N) ) )  for k in range(0, N-1)]
-yif = ifft(yout1)
+h = ifft([H( np.exp( complex(0, 2*math.pi*k/N) ) )  for k in range(0, N-1)])
 T = np.linspace(0, 200, 200)
 plt.figure()
-plt.plot(T, yif)
+plt.grid(True)
+plt.plot(T, h)
 
 #dft
 N = 201
 #yf = fft(yout)
-yf = [np.sum( [yout[n]*np.exp( complex(0, -2*math.pi*k*n/N) )  for n in range(0, N-1)] ) for k in range(0, N-1)]
+yf = [np.sum( [h[n]*np.exp( complex(0, -2*math.pi*k*n/N) )  for n in range(0, N-1)] ) for k in range(0, N-1)]
 Y = np.abs(yf[0:100])
 T = np.linspace(0, 3.1415926, 100)
 plt.figure()
