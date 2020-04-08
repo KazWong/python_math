@@ -38,11 +38,13 @@ plt.plot(T, yout)
 
 #impulse response
 N = 201
+u = [1]
 h = ifft([H( np.exp( complex(0, 2*math.pi*k/N) ) )  for k in range(0, N-1)])
+H_re = np.convolve(u, h)
 T = np.linspace(0, 200, 200)
 plt.figure()
 plt.grid(True)
-plt.plot(T, h)
+plt.plot(T, H_re)
 
 #dft
 N = 201
