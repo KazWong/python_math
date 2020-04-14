@@ -33,8 +33,8 @@ ohm = 2.*math.pi / N
 u = A*np.cos([ohm*l*x for x in range(0, Nt + N - 1)])
 h = ifft( [H( np.exp( complex(0, 2*math.pi*k/N) ) )  for k in range(0, N-1)] )
 ye = np.convolve(u, h)
-print(np.abs(ye[0]))
-print(np.angle(ye[0]))
+#print(np.abs(ye[0]))
+#print(np.angle(ye[0]))
 n1 = range(0, u.size)
 n2 = range(0, len(ye))
 plt.figure()
@@ -43,14 +43,14 @@ plt.grid(True)
 plt.xlim(0, 250)
 plt.ylim(-6, 6)
 line_up, = plt.plot(n1, u, label="u")
-line_down, = plt.plot(n2, ye, label="y")
+line_down, = plt.plot(n2, ye.real, label="y")
 plt.legend(handles=[line_up, line_down])
 
 #for fix l
 u = A*np.cos([ohm*l*x for x in range(0, Nt + N - 1)])
 ye = np.abs(H( np.exp( complex(0, ohm*l) ) ) )*A*np.cos( [(ohm*l*n + np.angle(H( np.exp( complex(0, ohm*l) ) ) )) for n in range(0, Nt + N - 1)] )
-print(np.abs(ye[0]))
-print(np.angle(ye[0]))
+#print(np.abs(ye[0]))
+#print(np.angle(ye[0]))
 n1 = range(0, u.size)
 n2 = range(0, len(ye))
 plt.figure()
@@ -59,10 +59,10 @@ plt.grid(True)
 plt.xlim(0, 250)
 plt.ylim(-6, 6)
 line_up, = plt.plot(n1, u, label="u")
-line_down, = plt.plot(n2, ye, label="y")
+line_down, = plt.plot(n2, ye.real, label="y")
 plt.legend(handles=[line_up, line_down])
 
-print(H(ohm*l), np.abs( np.exp(complex(0, ohm*l)) ), np.angle( H(np.exp(complex(0, ohm*l))) ))
+#print(H(ohm*l), np.abs( np.exp(complex(0, ohm*l)) ), np.angle( H(np.exp(complex(0, ohm*l))) ))
 
 
 Y = []
@@ -71,11 +71,11 @@ h = ifft( [H( np.exp( complex(0, ohm*n) ) )  for n in range(0, N-1)] )
 T = np.linspace(0, Nt+N-1, h.size)
 plt.figure()
 plt.grid(True)
-plt.plot(T, h)
+plt.plot(T, h.real)
 for l in range(0, int((N-1)/2)):
 	ohml = 2.*math.pi*l / N
 	u = A*np.cos([ohml*n for n in range(0, Nt + N - 1)])
-	ye = np.abs( H(np.exp(complex(0, ohml))) ) * A*np.cos( [(ohml*n + np.angle(H(np.exp( complex(0, ohml))))) for n in range(0, Nt + N - 1)] )
+	ye = np.abs( H(np.exp(complex(0, ohml))) ) * A*np.cos( [(np.angle(H(np.exp( complex(0, ohml)))) - ohml*n) for n in range(0, Nt + N - 1)] )
 	#ye = scipy.signal.convolve(u, h)
 	Y = np.append(Y, np.sum( [ye[n]*np.exp( complex(0, -ohml*n) )  for n in range(Nt, Nt+N-1)] ) )
 	U = np.append(U, np.sum( [u[n]*np.exp( complex(0, -ohml*n) )  for n in range(Nt, Nt+N-1)] ) )
@@ -95,5 +95,47 @@ plt.grid(True)
 plt.plot(T, mag_H_re)
 #plt.legend(handles=[line_up, line_down])
 
+def HighOrderApprox(x, y, order):
+	l = len(x)
+	if (order >= l):
+		order = l - 1
+  
+	A = order_array = np.ones([l, 1])
+	B = np.array([y]).T
+	xx = np.array([x]).T
+	for i in range(order):
+		order_array = order_array*xx
+		A = np.concatenate((A, order_array), axis=1)
+  
+	A_T = A.T;
+	a = np.linalg.inv(A_T.dot(A)).dot(A_T).dot(B)
+  
+	return a
+	
+A = [[0, 0, 0, 0, 0]]
+B = []
+L = int((N-1)/2)
+for l in range(0, L):
+	ohml = 2.*math.pi*l / N
+	R = np.abs(H(np.exp(complex(0, ohml))))
+	theta = np.angle(H(np.exp(complex(0, ohml))))
+	A = np.concatenate( (A, [[-R*np.cos(theta - ohml), -R*np.cos(theta - 2.*ohml), 1., np.cos(ohml), np.cos(2.*ohml)]]), axis=0 )
+	B = np.concatenate( (B, [R*np.cos(theta)]), axis=0 )
+
+for l in range(0, L):
+	ohml = 2.*math.pi*l / N
+	R = np.abs(H(np.exp(complex(0, ohml))))
+	theta = np.angle(H(np.exp(complex(0, ohml))))
+	A = np.concatenate( (A, [[-R*np.sin(theta - ohml), -R*np.sin(theta - 2.*ohml), 0., -np.sin(ohml), -np.sin(2.*ohml)]]), axis=0 )
+	B = np.concatenate( (B, [R*np.sin(theta)]), axis=0 )
+	
+A = np.delete(A, 0, 0)
+
+A_T = A.T;
+a = np.linalg.inv(A_T.dot(A)).dot(A_T).dot(B)
+Hre = (a[2]+a[3]*z**-1-a[4]*z**-2)/(1.0-a[0]*z**-1+a[1]*z**-2)
+
+print(Hre)
+print(H)
 
 plt.show()
