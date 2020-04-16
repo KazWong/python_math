@@ -3,7 +3,7 @@ import numpy as np
 
 T = 10.
 V0 = 0.
-Vn = 1.
+Vn = 5.
 A0 = 0.
 An = 0.
 J0 = 0.
