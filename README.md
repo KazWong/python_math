@@ -22,21 +22,24 @@ python3 -m python_ math.test_ bench.test_plant
 - motion profile  
   - 5 order  
   - 7 order  
-- TODO: FFT  
+- FFT  
 - Dynsys  
   - Dry Air  
   - newtonian  
   - damped sinusoidal oscillator  
+  - Speed-Out  
 - Signal
   - Square  
-  - PWM
+  - PWM  
   - Sinusoid + Gaussain  
   - Linear + Gaussian  
 - Bayesian Filter  
   - Kalman Filter  
 - Test Bench  
-  - linear regression
-  - polynomial approximation
-  - test plant
-  - test signal
-  - kalman filter + newtonian plant
+  - linear regression  
+  - polynomial approximation  
+  - test plant  
+  - test signal  
+  - kalman filter + newtonian plant  
+- Bode Plot  
+- System Identification  

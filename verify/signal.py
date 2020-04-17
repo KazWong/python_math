@@ -30,50 +30,6 @@ if (c != l).any():
   print(l)
   raise AssertionError()
 
-# Offline time
-clock.Offline(end_time)
-if (clock.Hz() != sampling_rate): raise AssertionError()
-if (clock.T() != 1./sampling_rate): raise AssertionError()
-if (clock.timespace[0] != 0.): raise AssertionError()
-if (clock.timespace[-1] != end_time):
-  print(clock.timespace[-1]) 
-  print(end_time[-1]) 
-  raise AssertionError()
-clock.Reset()
-
-# Tick time and timespace consistency
-tick = np.array([])
-for i in range(int(sampling_rate*end_time)+1):
-  tick = np.append(tick, np.around(clock.Tick(), 3) )
-timespace = np.around(clock.timespace, 3)
-if (tick[0] != timespace[0]) or (tick[0] != 0.0): 
-  print(timespace[0])
-  print(tick[0])
-  raise AssertionError()
-if (tick[-1] != timespace[-1]) or (tick[-1] != end_time):
-  print(timespace[-1])
-  print(tick[-1])
-  print(end_time)
-  raise AssertionError()
-if (tick.size != timespace.size):
-  raise AssertionError()
-if ( tick != timespace ).any(): 
-  raise AssertionError()
-clock.Reset()
-
-# Tick after Offline
-clock.Offline(end_time)
-tick = clock.timespace
-for i in range(int(sampling_rate*end_time)+1, int(sampling_rate*2*end_time)+1):
-  tick = np.append(tick, np.around(clock.Tick(), 3) )
-timespace = np.around(clock.timespace, 3)
-if (clock.timespace[0] != 0.): raise AssertionError()
-if (clock.timespace[-1] != 2*end_time): 
-  print(clock.timespace[-1])
-  print(2*end_time)
-  raise AssertionError()
-clock.Reset()
-
 
 # Offline Signal test
 clock.Offline(end_time)

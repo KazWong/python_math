@@ -13,7 +13,7 @@ acc = a[1] + 2*a[2]*t + 3*a[3]*t**2 + 4*a[4]*t**3 + 5*a[5]*t**4
 so = np.pi*0.1565/150.
 p = [0.0]
 s = 0.0
-last_t = 0.0
+dt = t[1]
 count = 0
 start_t = 0.0
 fix_time = [0]
@@ -25,17 +25,24 @@ max_count = 200
 update_period = 0.1
 
 for i in range(0, len(t)):
-	s = v[i]*(t[i] - last_t) + s
-	last_t = t[i]
-	if (s >= so):
+	ds = v[i]*dt
+	if ((s + ds) == so):
 		p = np.append(p, [t[i]])
-		s = s - so
+		s = 0.0
+		ds = 0.0
 		count += 1
+	elif ((s + ds) > so):
+		p = np.append(p, [t[i-1] + (so - s)/ds * dt])
+		s = (ds + s) - so
+		ds = 0.0
+		count += 1
+	s = s + ds
+#fix position
 	if ((t[i] - start_t) >= update_period):
 		fix_time = np.append(fix_time, [count])
 		fix_time_t = np.append(fix_time_t, [t[i]])
 		v_re = np.append(v_re, [6.5554566704907 * (float(count) / max_count)])
-		print(count, v_re[-1], v[i], t[i] - start_t)
+		#print(count, v_re[-1], v[i], t[i] - start_t)
 		if (len(v_re) > 12):
 			#print(v_re[-1] - v_re[-2], fix_time_t[-1] - fix_time_t[-2])
 			#a_re = np.append(a_re, [ (v_re[-1] - v_re[-2]) / (fix_time_t[-1] - fix_time_t[-2])])
@@ -56,6 +63,8 @@ for i in range(0, len(t)):
 		count = 0
 
 l = np.ones(len(p))
+
+print(count, len(fix_time_t))
 
 #plt.figure()
 #plt.stem(p, l, '-', use_line_collection=True)
