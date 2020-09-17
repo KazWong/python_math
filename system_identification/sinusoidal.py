@@ -76,10 +76,11 @@ plt.plot(T, phase_H_re)
 #
 ###############################
 
-l = 7
+l = 87
 
 #convolution for fix l
 u = A*np.cos([ohm*l*n for n in range(0, Nt + N - 1)])
+print(u)
 ye_f = np.convolve(u, h)
 ye_d = np.abs(H( np.exp( complex(0, -ohm*l) ) ) )*A*np.cos( [(ohm*l*n + np.angle(H( np.exp( complex(0, -ohm*l))))) for n in range(0, Nt + N - 1)] )
 n1 = range(0, u.size)

@@ -89,6 +89,13 @@ def callback1(msg):
   y011data = append(y011data, msg.data[1])
   y021data = append(y021data, msg.data[2])
   y031data = append(y031data, msg.data[3])
+  
+  if (len(t1) > 300):
+  	np.delete(t1, 0)
+  	np.delete(y001data, 0)
+  	np.delete(y011data, 0)
+  	np.delete(y021data, 0)
+  	np.delete(y031data, 0)
   lock1.release()
   
   t_step_1 = time.time() - t_base
@@ -102,6 +109,13 @@ def callback2(msg):
   y012data = append(y012data, msg.data[1])
   y022data = append(y022data, msg.data[2])
   y032data = append(y032data, msg.data[3])
+  
+  if (len(y002data) > 300):
+  	np.delete(t2, 0)
+  	np.delete(y002data, 0)
+  	np.delete(y012data, 0)
+  	np.delete(y022data, 0)
+  	np.delete(y032data, 0)
   lock2.release()
   
   t_step_2 = time.time() - t_base
@@ -115,6 +129,13 @@ def callback3(msg):
   y013data = append(y013data, msg.data[1])
   y023data = append(y023data, msg.data[2])
   y033data = append(y033data, msg.data[3])
+  
+  if (len(y003data) > 300):
+  	np.delete(t3, 0)
+  	np.delete(y003data, 0)
+  	np.delete(y013data, 0)
+  	np.delete(y023data, 0)
+  	np.delete(y033data, 0)
   lock3.release()
   
   t_step_3 = time.time() - t_base
@@ -128,6 +149,13 @@ def callback4(msg):
   y014data = append(y014data, msg.data[1])
   y024data = append(y024data, msg.data[2])
   y034data = append(y034data, msg.data[3])
+  
+  if (len(y004data) > 300):
+  	np.delete(t4, 0)
+  	np.delete(y004data, 0)
+  	np.delete(y014data, 0)
+  	np.delete(y024data, 0)
+  	np.delete(y034data, 0)
   lock4.release()
   
   t_step_4 = time.time() - t_base

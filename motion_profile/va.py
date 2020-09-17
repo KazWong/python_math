@@ -3,10 +3,10 @@ import numpy as np
 import math
 
 V0 = 0.0
-Vn = 1.0
-A0 = 1.7227
+Vn = 3.0
+A0 = 0.0
 An = 0.0000
-Amax = 2.0
+Amax = 1.5
 T = 0.0
 
 
