@@ -14,7 +14,7 @@ def generate_data(nbr_iterations, nbr_elements):
         nbr_elements (int): Number of elements (or points) that will move.
     Returns:
         list: list of positions of elements. (Iterations x (# Elements x Dimensions))
-    """
+
     dims = (3,1)
 
     # Random initial positions.
@@ -31,10 +31,10 @@ def generate_data(nbr_iterations, nbr_elements):
         previous_positions = data[-1]
         new_positions = previous_positions + start_speed
         data.append(new_positions)
+    """
 
-
-    #raw = pd.read_csv("bubble.csv")
-    #data = np.array([raw['cx'].tolist(), raw['cy'].tolist(), raw['vx'].tolist()])
+    raw = pd.read_csv("bubble.csv")
+    data = np.array([raw['cx'].tolist(), raw['cy'].tolist(), raw['vx'].tolist()])
 
     print(data[0])
 
