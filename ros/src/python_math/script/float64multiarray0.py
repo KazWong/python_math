@@ -20,7 +20,7 @@ for i in range(grid_num):
     ax.append(subplot2grid((grid_num, 1), (i, 0)))
 tight_layout()
 
-ylim = [1.3, 1.3, 1.3, 1.3]
+ylim = [4.0, 200.0, 370.0, 1.3]
 for i in range(grid_num):
     ax[i].set_ylim(-ylim[i], ylim[i])
     ax[i].set_xlim(0, 20.0)
@@ -92,10 +92,10 @@ def update(frame):
 
 if __name__ == '__main__':
   rospy.init_node('multiarray_data', anonymous=True)
-  rospy.Subscriber("wheels", Float64MultiArray, callback1)
-  rospy.Subscriber("wheels_fba", Float64MultiArray, callback2)
-  rospy.Subscriber("wheels_fbv", Float64MultiArray, callback3)
-  rospy.Subscriber("wheels_cmdv", Float64MultiArray, callback4)
+  rospy.Subscriber("accel", Float64MultiArray, callback1)
+  rospy.Subscriber("omega", Float64MultiArray, callback2)
+  rospy.Subscriber("theta", Float64MultiArray, callback3)
+  rospy.Subscriber("NONE", Float64MultiArray, callback4)
 
   ani = animation.FuncAnimation(fig, update, frames=100, interval=20, blit=False)
   plt.show()
