@@ -1,0 +1,2 @@
+python_math
+-DCATKIN_DEVEL_PREFIX=/home/whwong/Codes/python_math/ros/devel -DCMAKE_INSTALL_PREFIX=/home/whwong/Codes/python_math/ros/install -G Unix Makefiles

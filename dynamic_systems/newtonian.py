@@ -1,37 +1,39 @@
 import numpy as np
 import random
-from . import Dynsys
+from ..simtools import *
 
-class Newtonian(Dynsys):
-  def __init__(self, clock, X0=[0.], di = None, do = None):
-    super(Newtonian, self).__init__(clock, di, do, 4, 4)
-    self.Valid(X0)
-    self._len = len(X0)
-    self._X0 = np.array( X0 + [0.]*(4-len(X0)) )
-    self.Reset()
+class Newtonian1D(Block):
+    def __init__(self, x0=[0., 0., 0., 0.]):
+        super(Newtonian1D, self).__init__()
+        self._len = len(x0)
+        self._x0 = np.array(x0)
+        self.Reset()
 
-  def Reset(self):
-    super(Newtonian, self).Reset()
-    self._X = self._X0
-    
-  def Model(self, t):
-    for i in range(4):
-      self._X[i] += self.di[i].Online(t)
-    x = self._X[0] + self._X[1]*t + 0.5*self._X[2]*t**2 + 0.16666*self._X[3]*t**3 + self.do[0].Online(t)
-    v = self._X[1] + self._X[2]*t + 0.3333*self._X[3]*t**2 + self.do[1].Online(t)
-    a = self._X[2] + 0.6666*self._X[3]*t + self.do[2].Online(t)
-    j = 1.3333*self._X[3] + self.do[3].Online(t)
-    return x, v, a, j
-  
-  def Online(self, _c1=[0.]):
-    self.Valid(_c1)
-    self._X += np.array( _c1 + [0.]*(4-len(_c1)) )
-    super(Newtonian, self).Online()
-    return self.x[-4:]
-  
-  def Valid(self, _l):
-    if (isinstance(_l, list)):
-      if (len(_l) > 4):
-        raise LookupError()
-    else:
-      raise TypeError()
+    def Reset(self):
+        super(Newtonian1D, self).Reset()
+        self._x = np.array([self._x0])
+        self._u = np.empty((0, 3))
+        self._y = np.empty((0, 4))
+
+    def Model(self):
+        #u = [v, a, j]
+        dt = 0.0
+        x = np.array(self._x[-1])
+        if (len(self._t) >= 2):
+            dt = self._t[-1] - self._t[-2]
+
+            x[0] = self._x[-1][0] + (self._x[-1][1] + self._x[-2][1])*dt/2. + (self._u[-1][0] + self._u[-2][0])*dt/2. #pos
+            x[1] = self._x[-1][1] + (self._x[-1][2] + self._x[-2][2])*dt/2. + (self._u[-1][1] + self._u[-2][1])*dt/2. #vel
+            x[2] = self._x[-1][2] + (self._x[-1][3] + self._x[-2][3])*dt/2. + (self._u[-1][2] + self._u[-2][2])*dt/2. #acc
+            x[3] = self._x[-1][3] + self._u[-1][2] #jerk
+        self._x = np.append(self._x, np.array([x]), axis=0)
+        return np.array([x])
+
+    def Update(self, u):
+        super(Newtonian1D, self).Update_t()
+        self._u = np.append(self._u, u, axis=0)
+        self._y = np.append(self._y, self.Model(), axis=0)
+        return self._y[-1]
+
+    def x(self):
+        return self._x[-1]
