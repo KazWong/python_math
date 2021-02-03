@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ..dynamic_systems.newtonian import Newtonian1D
+from ..dynamic_systems.motion import Translation1D
 from ..motion_profile.vaj import Motion_vaj
 #from ..dynamic_systems.dry_air import DryAir
 from ..simtools import *
@@ -14,7 +14,7 @@ xn = [-3., 0., 0.]
 T1 = 10.
 T2 = 36.
 
-obj = Newtonian1D(x0)
+obj = Translation1D(x0)
 u0 = Motion_vaj(T1, x0[1:], xn1)
 u = [0.0, 0.0, 0.0]
 u_1 = [0.0, 0.0, 0.0]

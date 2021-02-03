@@ -15,6 +15,71 @@ class t:
 
 
 ###
+class Time:
+    # Simulation Time
+    # step: floating point in sec
+
+    def __init__(self, step, end_time = None):
+        self._s_step = 0
+        self._ns_step = 0
+        self.count = 0
+        self.time = t()
+        if (end_time is not None):
+            self._end_time = float(end_time)
+        self.SetTick(step)
+        self.Reset()
+
+    def Reset(self):
+        self._s = 0
+        self._ns = 0
+        self.count = 0
+        self.time.timespace.clear()
+
+    def SetTick(self, step = None):
+        if (step is not None):
+            self._step = float(step)
+        t.step = self._step
+        self._s_step = np.round(self._step)
+        self._ns_step = (self._step - self._s_step)*1e9
+
+    def Offline(self, end_time = None):
+        # end_time: floating point of end time in sec, -1 is infinity for Online tick, Offline return error
+        if (end_time is not None):
+            self._end_time = float(end_time)
+        if (self._end_time < 0.0 or self._end_time is None or (self._s_step == 0 and self._ns_step == 0)):
+            raise RuntimeError('Offline mode end time < 0.0')
+        self.Reset()
+        [self.Tick() for _ in range( int(math.ceil(self._end_time/self._step))+1 )]
+        return np.array(self.time.timespace)
+
+    def Tick(self):
+        if (not self.time.timespace):
+            self.time.timespace.append(0.0)
+        else:
+            self.count += 1
+            self._s += self._s_step
+            self._ns += self._ns_step
+            if (self._ns > 1e9):
+                self._s += 1
+                self._ns -= 1e9
+            self.time.timespace.append( np.round( self._s + self._ns / 1e9, 9) )
+
+    def T(self):
+        return self._step
+
+    def Len(self):
+        return len(self.time.timespace)
+
+    def now(self):
+        if (self.time.now() is None):
+            return 0.0
+        return self.time.now()
+
+    def timespace(self):
+        return self.time.timespace
+
+
+###
 class Block(object):
     def __init__(self):
         self._time = t()
@@ -86,65 +151,46 @@ class Block(object):
 
 
 ###
-class Time:
-    # Simulation Time
-    # step: floating point in sec
+class Transform(object):
+    def __init__(self, parent, name, x, y, z):
+        self._p = parent
+        self._n = name
+        self._c = np.array([x, y, z, 1])
 
-    def __init__(self, step, end_time = None):
-        self._s_step = 0
-        self._ns_step = 0
-        self.count = 0
-        self.time = t()
-        if (end_time is not None):
-            self._end_time = float(end_time)
-        self.SetTick(step)
-        self.Reset()
+    def Translate(self, trans):
+        T = np.array([[1, 0, 0, trans[0]],
+                      [0, 1, 0, trans[1]],
+                      [0, 0, 1, trans[2]],
+                      [0, 0, 0, 1],])
+        new_c = T.dot(self._c.T)
+        self._c = new_c.T
+        return self._c
 
-    def Reset(self):
-        self._s = 0
-        self._ns = 0
-        self.count = 0
-        self.time.timespace.clear()
+    def RotateX(self, theta):
+        R = np.array([[1, 0, 0, 0],
+                      [0, math.cos(theta), -math.sin(theta), 0],
+                      [0, math.sin(theta), math.cos(theta), 0],
+                      [0, 0, 0, 1],])
+        new_c = R.dot(self._c.T)
+        self._c = new_c.T
 
-    def SetTick(self, step = None):
-        if (step is not None):
-            self._step = float(step)
-        t.step = self._step
-        self._s_step = np.round(self._step)
-        self._ns_step = (self._step - self._s_step)*1e9
+    def RotateY(self, theta):
+        R = np.array([[math.cos(theta), 0, math.sin(theta), 0],
+                      [0, 1, 0, 0],
+                      [-math.sin(theta), 0, math.cos(theta), 0],
+                      [0, 0, 0, 1],])
+        new_c = R.dot(self._c.T)
+        self._c = new_c.T
 
-    def Offline(self, end_time = None):
-        # end_time: floating point of end time in sec, -1 is infinity for Online tick, Offline return error
-        if (end_time is not None):
-            self._end_time = float(end_time)
-        if (self._end_time < 0.0 or self._end_time is None or (self._s_step == 0 and self._ns_step == 0)):
-            raise RuntimeError('Offline mode end time < 0.0')
-        self.Reset()
-        [self.Tick() for _ in range( int(math.ceil(self._end_time/self._step))+1 )]
-        return np.array(self.time.timespace)
+    def RotateZ(self, theta):
+        R = np.array([[math.cos(theta), -math.sin(theta), 0, 0],
+                      [math.sin(theta), math.cos(theta), 0, 0],
+                      [0, 0, 1, 0],
+                      [0, 0, 0, 1],])
+        new_c = R.dot(self._c.T)
+        self._c = new_c.T
 
-    def Tick(self):
-        if (not self.time.timespace):
-            self.time.timespace.append(0.0)
-        else:
-            self.count += 1
-            self._s += self._s_step
-            self._ns += self._ns_step
-            if (self._ns > 1e9):
-                self._s += 1
-                self._ns -= 1e9
-            self.time.timespace.append( np.round( self._s + self._ns / 1e9, 9) )
-
-    def T(self):
-        return self._step
-
-    def Len(self):
-        return len(self.time.timespace)
-
-    def now(self):
-        if (self.time.now() is None):
-            return 0.0
-        return self.time.now()
-
-    def timespace(self):
-        return self.time.timespace
+    def x(self):
+        return self._c[0]
+    def y(self):
+        return self._c[1]

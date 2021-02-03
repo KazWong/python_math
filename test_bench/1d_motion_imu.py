@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ..dynamic_systems.newtonian import Newtonian1D
+from ..dynamic_systems.motion import Translation1D
 from ..motion_profile.vaj import Motion_vaj
 from ..sensor.imu import Accelometer1D
 from ..simtools import *
@@ -14,8 +14,8 @@ xn = [-3., 0., 0.]
 T1 = 30.
 T2 = 30.
 
-obj = Newtonian1D(x0)
-est = Newtonian1D(x0)
+obj = Translation1D(x0)
+est = Translation1D(x0)
 accro = Accelometer1D(100., 0.001, 0.1, 0.0)
 u0 = Motion_vaj(T1, x0[1:], xn1)
 u = [0.0, 0.0, 0.0]

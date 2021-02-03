@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 #from ..dynamic_systems.damped_sinusoidal_oscillator import DampedSinOsc
-from ..dynamic_systems.newtonian import Newtonian1D
+from ..dynamic_systems.motion import Translation1D
 #from ..dynamic_systems.dry_air import DryAir
 from ..simtools import *
 from ..simtools.gaussian import LinearGaussian, SineGaussian
@@ -10,7 +10,7 @@ sampling_rate = 1000.;end_time = 5.
 clock = Time(1.)
 
 
-### Newtonian
+### Translation1D
 x0 = [0., 5., 0., 0.]
 i = 0
 u = np.array([[5., 0., 0.],
@@ -20,7 +20,7 @@ u = np.array([[5., 0., 0.],
     [1., 0., 0.],
     [0., 0., 0.]])
 
-x = Newtonian1D(x0)
+x = Translation1D(x0)
 clock.Reset()
 while (clock.now() < end_time):
     clock.Tick()
@@ -30,12 +30,14 @@ while (clock.now() < end_time):
 off_motion = x.Y()
 off_motion = off_motion.reshape([-1, 4])
 
+plt.figure()
 plt.subplot(311)
 plt.xlabel('x')
 plt.ylabel('y')
 plt.scatter(clock.timespace(), off_motion[:,0], c='r', s=0.5)
 plt.scatter(clock.timespace(), off_motion[:,1], c='g', s=0.5)
 #plt.scatter(clock.timespace(), off_motion[:,2], c='b', s=0.5)
+
 
 """
 ### Dry Air
