@@ -151,46 +151,182 @@ class Block(object):
 
 
 ###
-class Transform(object):
-    def __init__(self, parent, name, x, y, z):
-        self._p = parent
-        self._n = name
-        self._c = np.array([x, y, z, 1])
+# quaternion:
+#Yan-Bin Jia, "Quaternions and Rotations" https://www.weizmann.ac.il/sci-tea/benari/sites/sci-tea.benari/files/uploads/softwareAndLearningMaterials/quaternion-tutorial-2-0-1.pdf
+#Moti Ben-Ari, "A Tutorial on Euler Angles and Quaternions" http://graphics.stanford.edu/courses/cs348a-17-winter/Papers/quaternion.pdf
+#K.Groÿekatthöfer, Z.Yoon, "Intro ductionintoquaternionsforspacecraftattituderepresentation" http://www.tu-berlin.de/fileadmin/fg169/miscellaneous/Quaternions.pdf
+class TF(object):
+    # Z-Y-X
+    def Euler2Quat(self, orien):
+        Qx = np.array([math.cos(orien[2]/2.), math.sin(orien[2]/2.), 0.0, 0.0])
+        Qy = np.array([math.cos(orien[1]/2.), 0.0, math.sin(orien[1]/2.), 0.0])
+        Qz = np.array([math.cos(orien[0]/2.), 0.0, 0.0, math.sin(orien[0]/2.)])
+        Q  = np.array(Qz.dot(Qy)).dot(Qx)
+        return Q
+
+    def RoMat2Quat(self, M):
+        q0 = math.sqrt((M[0][0] + M[1][1] + M[2][2] + 1.)/2.)
+        tmp = 4.*q0
+        q1 = (M[2][1] - M[1][2])/tmp
+        q2 = (M[0][2] - M[2][0])/tmp
+        q3 = (M[1][0] - M[0][1])/tmp
+        return np.array([q0, q1, q2, q3])
+
+    def RoMat2Euler(self, M):
+        r =  math.atan2(M[2][1], M[2][2])
+        p = -math.asin(M[2][0])
+        y =  math.atan2(M[1][0], M[0][0])
+        return np.array([r, p, y])
+
+    def Quat2RoMat(self, quat):
+        #homogeneous expression
+        q = quat
+        Ro = np.array([ [q[0]**2 + q[1]**2 - 0.5, q[1]*q[2] - q[0]*q[3], q[0]*q[2] - q[1]*q[3] ],
+                        [q[0]*q[3] - q[1]*q[2], q[0]**2 + q[2]**2 - 0.5, q[2]*q[3] - q[0]*q[1] ],
+                        [q[1]*q[3] - q[0]*q[2], q[0]*q[1] - q[2]*q[3], q[0]**2 + q[3]**2 - 0.5 ] ])
+        return 2*Ro
+
+    def Euler2RoMat(self, ro):
+        Rx = np.array([ [1.,              0.,               0.],
+                        [0., math.cos(ro[0]), -math.sin(ro[0])],
+                        [0., math.sin(ro[0]),  math.cos(ro[0])] ])
+        Ry = np.array([ [ math.cos(ro[1]), 0., math.sin(ro[1])],
+                        [              0., 1.,              0.],
+                        [-math.sin(ro[1]), 0., math.cos(ro[1])] ])
+        Rz = np.array([ [math.cos(ro[2]), -math.sin(ro[2]), 0.],
+                        [math.sin(ro[2]),  math.cos(ro[2]), 0.],
+                        [             0.,               0., 1.] ])
+        Ro = np.array(Rz.dot(Ry)).dot(Rx)
+        return Ro
+
+    def TFMat(self, tr, ro):
+        tmp = np.append( np.array(self.Euler2RoMat(ro).dot(np.eye(3, 4))), np.array([[0., 0., 0., 1.]]), axis=0 )
+        Tr = np.array([ [1., 0., 0., tr[0]],
+                        [0., 1., 0., tr[1]],
+                        [0., 0., 1., tr[2]],
+                        [0., 0., 0., 1.]    ])
+        T = Tr.dot(tmp)
+
+        return T
+
+    def Reverse(self, T):
+        T_T = T.T
+        TT = np.linalg.inv(T_T.dot(T)).dot(T_T)
+        return TT
+
+
+class Frame(object):
+    # Z-Y-X
+    def __init__(self, position, orientation, timestamp=None):
+        if (len(position) != 3):
+            raise IOError()
+        if (len(orientation) != 3):
+            raise IOError()
+
+        self.tf = TF()
+        self._time = t()
+        if timestamp is None:
+            self._ts = self._time.now()
+        else:
+            self._ts = timestamp
+        self._xyz = position
+        self._rpy = orientation
+        self._quat = self.tf.Euler2Quat(self._rpy)
+        self.T = self.tf.TFMat(position, orientation)
+
+    def Transformation(self, tr, ro, timestamp=None):
+        T = self.tf.TFMat(tr, ro)
+        self.T = self.T.dot(T)
+
+        Ro = np.array([ [self.T[0][0], self.T[0][1], self.T[0][2]],
+                        [self.T[1][0], self.T[1][1], self.T[1][2]],
+                        [self.T[2][0], self.T[2][1], self.T[2][2]] ])
+
+        self._xyz = [self.T[0][3], self.T[1][3], self.T[2][3]]
+        self._rpy = self.tf.RoMat2Euler(Ro)
+        self._quat = self.tf.RoMat2Quat(Ro)
+        if timestamp is None:
+            self._ts = self._time.now()
+        else:
+            self._ts = timestamp
+
+        return self.T
 
     def Translate(self, trans):
-        T = np.array([[1, 0, 0, trans[0]],
-                      [0, 1, 0, trans[1]],
-                      [0, 0, 1, trans[2]],
-                      [0, 0, 0, 1],])
-        new_c = T.dot(self._c.T)
-        self._c = new_c.T
-        return self._c
+        return self.Transformation(trans, np.array([0.0, 0.0, 0.0]))
 
-    def RotateX(self, theta):
-        R = np.array([[1, 0, 0, 0],
-                      [0, math.cos(theta), -math.sin(theta), 0],
-                      [0, math.sin(theta), math.cos(theta), 0],
-                      [0, 0, 0, 1],])
-        new_c = R.dot(self._c.T)
-        self._c = new_c.T
+    def RotateRoll(self, theta):
+        return self.Transformation(np.array([0.0, 0.0, 0.0]), np.array([theta, 0.0, 0.0]))
 
-    def RotateY(self, theta):
-        R = np.array([[math.cos(theta), 0, math.sin(theta), 0],
-                      [0, 1, 0, 0],
-                      [-math.sin(theta), 0, math.cos(theta), 0],
-                      [0, 0, 0, 1],])
-        new_c = R.dot(self._c.T)
-        self._c = new_c.T
+    def RotatePitch(self, theta):
+        return self.Transformation(np.array([0.0, 0.0, 0.0]), np.array([0.0, theta, 0.0]))
 
-    def RotateZ(self, theta):
-        R = np.array([[math.cos(theta), -math.sin(theta), 0, 0],
-                      [math.sin(theta), math.cos(theta), 0, 0],
-                      [0, 0, 1, 0],
-                      [0, 0, 0, 1],])
-        new_c = R.dot(self._c.T)
-        self._c = new_c.T
+    def RotateYaw(self, theta):
+        return self.Transformation(np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, theta]))
 
     def x(self):
-        return self._c[0]
+        return self._xyz[0]
     def y(self):
-        return self._c[1]
+        return self._xyz[1]
+    def z(self):
+        return self._xyz[2]
+
+    def pos(self):
+        return self._xyz
+    def orien(self):
+        return self._rpy
+
+
+###
+class _Tree(object):
+    dict = {}
+    node = {}
+    tree = {}
+
+class Tree(object):
+    def __init__(self):
+        self.Tree = _Tree()
+        if not bool(self.Tree.tree):
+            print('init')
+            self.Tree.dict['origin'] = Transform( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) )
+            self.Tree.node['origin'] = 'origin'
+            self.Tree.tree['origin'] = []
+        return
+
+    def Node(self, name):
+        return self.Tree.dict[name]
+
+    def AddNode(self, name, obj, parent='origin'):
+        if name in self.Tree.node:
+            return
+        self.Tree.node[name] = parent
+        self.Tree.dict[name] = obj
+        self.Tree.tree[parent].append(name)
+        self.Tree.tree[name] = []
+
+    def _RecurSearchTree(self, A, B):
+        list = []
+        if A not in B:
+            list.extend( self._RecurSearchTree(self.Tree.node[A], B) )
+            list.extend([A])
+            return list
+        else:
+            return [B[B.index(A)]]
+
+    def TwoFrame(self, A, B):
+        #from A to B
+        list_A = self._RecurSearchTree(A, ['origin'])
+        list_B = self._RecurSearchTree(B, list_A)
+        list = [[], [], []]
+
+        T = np.eye(4)
+        for i in range(len(list_A) - 1, list_A.index(list_B[0]), -1):
+            list[0].append(list_A[i])
+            T_T = self.Tree.dict[list_A[i]].Inverse_Matrix(self.Tree.dict[list_A[i]].T)
+            T = T.dot(T_T)
+
+        list[1].append(list_B[0])
+        for i in range(1, len(list_B)):
+            list[2].append(list_B[i])
+            T = T.dot(self.Tree.dict[list_B[i]].T)
+        return T, list
