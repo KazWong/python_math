@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from enum import Enum
 
 
 class t:
@@ -12,6 +13,14 @@ class t:
             return self.timespace[-1]
         else:
             return None
+
+class a6(Enum):
+    x  = 0
+    y  = 1
+    z  = 2
+    rx = 3
+    ry = 4
+    rz = 5
 
 
 ###
@@ -157,28 +166,28 @@ class Block(object):
 #K.Groÿekatthöfer, Z.Yoon, "Intro ductionintoquaternionsforspacecraftattituderepresentation" http://www.tu-berlin.de/fileadmin/fg169/miscellaneous/Quaternions.pdf
 class TF(object):
     # Z-Y-X
-    def Euler2Quat(self, orien):
+    def Euler2Quat(orien):
         Qx = np.array([math.cos(orien[2]/2.), math.sin(orien[2]/2.), 0.0, 0.0])
         Qy = np.array([math.cos(orien[1]/2.), 0.0, math.sin(orien[1]/2.), 0.0])
         Qz = np.array([math.cos(orien[0]/2.), 0.0, 0.0, math.sin(orien[0]/2.)])
         Q  = np.array(Qz.dot(Qy)).dot(Qx)
         return Q
 
-    def RoMat2Quat(self, M):
-        q0 = math.sqrt((M[0][0] + M[1][1] + M[2][2] + 1.)/2.)
+    def RoMat2Quat(m):
+        q0 = math.sqrt((m[0][0] + m[1][1] + m[2][2] + 1.)/2.)
         tmp = 4.*q0
-        q1 = (M[2][1] - M[1][2])/tmp
-        q2 = (M[0][2] - M[2][0])/tmp
-        q3 = (M[1][0] - M[0][1])/tmp
+        q1 = (m[2][1] - m[1][2])/tmp
+        q2 = (m[0][2] - m[2][0])/tmp
+        q3 = (m[1][0] - m[0][1])/tmp
         return np.array([q0, q1, q2, q3])
 
-    def RoMat2Euler(self, M):
-        r =  math.atan2(M[2][1], M[2][2])
-        p = -math.asin(M[2][0])
-        y =  math.atan2(M[1][0], M[0][0])
+    def RoMat2Euler(m):
+        r =  math.atan2(m[2][1], m[2][2])
+        p = -math.asin(m[2][0])
+        y =  math.atan2(m[1][0], m[0][0])
         return np.array([r, p, y])
 
-    def Quat2RoMat(self, quat):
+    def Quat2RoMat(quat):
         #homogeneous expression
         q = quat
         Ro = np.array([ [q[0]**2 + q[1]**2 - 0.5, q[1]*q[2] - q[0]*q[3], q[0]*q[2] - q[1]*q[3] ],
@@ -186,7 +195,7 @@ class TF(object):
                         [q[1]*q[3] - q[0]*q[2], q[0]*q[1] - q[2]*q[3], q[0]**2 + q[3]**2 - 0.5 ] ])
         return 2*Ro
 
-    def Euler2RoMat(self, ro):
+    def Euler2RoMat(ro):
         Rx = np.array([ [1.,              0.,               0.],
                         [0., math.cos(ro[0]), -math.sin(ro[0])],
                         [0., math.sin(ro[0]),  math.cos(ro[0])] ])
@@ -199,8 +208,8 @@ class TF(object):
         Ro = np.array(Rz.dot(Ry)).dot(Rx)
         return Ro
 
-    def TFMat(self, tr, ro):
-        tmp = np.append( np.array(self.Euler2RoMat(ro).dot(np.eye(3, 4))), np.array([[0., 0., 0., 1.]]), axis=0 )
+    def TFMat(tr, Ro):
+        tmp = np.append( np.array(Ro.dot(np.eye(3, 4))), np.array([[0., 0., 0., 1.]]), axis=0 )
         Tr = np.array([ [1., 0., 0., tr[0]],
                         [0., 1., 0., tr[1]],
                         [0., 0., 1., tr[2]],
@@ -209,72 +218,114 @@ class TF(object):
 
         return T
 
-    def Reverse(self, T):
-        T_T = T.T
-        TT = np.linalg.inv(T_T.dot(T)).dot(T_T)
-        return TT
+    def Inverse(m):
+        m_T = m.T
+        mT = np.linalg.inv(m_T.dot(m)).dot(m_T)
+        return mT
 
 
 class Frame(object):
     # Z-Y-X
-    def __init__(self, position, orientation, timestamp=None):
+    def __init__(self, position=(0., 0., 0.), orientation=(0., 0., 0.), timestamp=None):
         if (len(position) != 3):
             raise IOError()
         if (len(orientation) != 3):
             raise IOError()
+        #self.Reset()
 
-        self.tf = TF()
         self._time = t()
+        m = TF.TFMat(position, TF.Euler2RoMat(orientation))
         if timestamp is None:
-            self._ts = self._time.now()
+            self._t = np.array([self._time.now()])
         else:
-            self._ts = timestamp
-        self._xyz = position
-        self._rpy = orientation
-        self._quat = self.tf.Euler2Quat(self._rpy)
-        self.T = self.tf.TFMat(position, orientation)
+            self._t = np.array([timestamp])
+        self._m = np.array([m])
 
-    def Transformation(self, tr, ro, timestamp=None):
-        T = self.tf.TFMat(tr, ro)
-        self.T = self.T.dot(T)
-
-        Ro = np.array([ [self.T[0][0], self.T[0][1], self.T[0][2]],
-                        [self.T[1][0], self.T[1][1], self.T[1][2]],
-                        [self.T[2][0], self.T[2][1], self.T[2][2]] ])
-
-        self._xyz = [self.T[0][3], self.T[1][3], self.T[2][3]]
-        self._rpy = self.tf.RoMat2Euler(Ro)
-        self._quat = self.tf.RoMat2Quat(Ro)
+    def ResetMat(self, m, timestamp=None):
         if timestamp is None:
-            self._ts = self._time.now()
+            self._t = np.array([self._time.now()])
         else:
-            self._ts = timestamp
+            self._t = np.array([timestamp])
+        self._m = np.array([m])
 
-        return self.T
+        return self
 
-    def Translate(self, trans):
-        return self.Transformation(trans, np.array([0.0, 0.0, 0.0]))
+    def dot(self, T, timestamp=None):
+        m = self._m[-1]
+        if ( isinstance(T, Frame) ):
+            m = m.dot(T.m())
+        else:
+            m = m.dot(T)
 
-    def RotateRoll(self, theta):
-        return self.Transformation(np.array([0.0, 0.0, 0.0]), np.array([theta, 0.0, 0.0]))
+        if timestamp is None:
+            self._t = np.append(self._t, self._time.now())
+        else:
+            self._t = np.append(self._t, timestamp)
+        self._m = np.concatenate( (self._m, np.array([m])), axis=0)
 
-    def RotatePitch(self, theta):
-        return self.Transformation(np.array([0.0, 0.0, 0.0]), np.array([0.0, theta, 0.0]))
+    def UpdateMat(self, m, timestamp=None):
+        if ( isinstance(m, Frame) ):
+            m = m.m()
 
-    def RotateYaw(self, theta):
-        return self.Transformation(np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, theta]))
+        if timestamp is None:
+            self._t = np.append(self._t, self._time.now())
+        else:
+            self._t = np.append(self._t, timestamp)
+        self._m = np.concatenate( (self._m, np.array([m])), axis=0)
+
+    def UpdateTrRo(self, pos, rpy, timestamp=None):
+        m = TF.TFMat(pos, TF.Euler2RoMat(rpy))
+
+        if timestamp is None:
+            self._t = np.append(self._t, self._time.now())
+        else:
+            self._t = np.append(self._t, timestamp)
+        self._m = np.concatenate( (self._m, np.array([m])), axis=0)
+
+    def Inverse(self):
+        return TF.Inverse(self._m[-1])
+
+    def Transformation(self, trans, rpy, timestamp=None):
+        T = TF.TFMat(trans, TF.Euler2RoMat(rpy))
+        return self.dot(T, timestamp)
+
+    def Translate(self, trans, timestamp=None):
+        T = TF.TFMat(trans, TF.Euler2RoMat(np.array([0.0, 0.0, 0.0])))
+        return self.dot(T, timestamp)
+
+    def RotateRoll(self, theta, timestamp=None):
+        T = TF.TFMat(np.array([0.0, 0.0, 0.0]), TF.Euler2RoMat(np.array([theta, 0.0, 0.0])))
+        return self.dot(T, timestamp)
+
+    def RotatePitch(self, theta, timestamp=None):
+        T = TF.TFMat(np.array([0.0, 0.0, 0.0]), TF.Euler2RoMat(np.array([0.0, theta, 0.0])))
+        return self.dot(T, timestamp)
+
+    def RotateYaw(self, theta, timestamp=None):
+        T = TF.TFMat(np.array([0.0, 0.0, 0.0]), TF.Euler2RoMat(np.array([0.0, 0.0, theta])))
+        return self.dot(T, timestamp)
 
     def x(self):
-        return self._xyz[0]
+        return self._m[-1][0][3]
     def y(self):
-        return self._xyz[1]
+        return self._m[-1][1][3]
     def z(self):
-        return self._xyz[2]
+        return self._m[-1][2][3]
+    def m(self):
+        return self._m[-1]
+    def t(self):
+        return self._t[-1]
+    def timespace(self):
+        return self._t
+    def M(self):
+        return self._m
 
     def pos(self):
-        return self._xyz
-    def orien(self):
-        return self._rpy
+        return np.array([self._m[-1][0][3], self._m[-1][1][3], self._m[-1][2][3]])
+    def rpy(self):
+        return TF.RoMat2Euler(self._m[-1])
+    def quat(self):
+        return TF.RoMat2Quat(self._m[-1])
 
 
 ###
@@ -287,8 +338,7 @@ class Tree(object):
     def __init__(self):
         self.Tree = _Tree()
         if not bool(self.Tree.tree):
-            print('init')
-            self.Tree.dict['origin'] = Transform( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) )
+            self.Tree.dict['origin'] = Frame( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) )
             self.Tree.node['origin'] = 'origin'
             self.Tree.tree['origin'] = []
         return
@@ -304,29 +354,43 @@ class Tree(object):
         self.Tree.tree[parent].append(name)
         self.Tree.tree[name] = []
 
-    def _RecurSearchTree(self, A, B):
+    def _RecursiveSearch(self, A, B):
         list = []
         if A not in B:
-            list.extend( self._RecurSearchTree(self.Tree.node[A], B) )
+            list.extend( self._RecursiveSearch(self.Tree.node[A], B) )
             list.extend([A])
             return list
         else:
             return [B[B.index(A)]]
 
-    def TwoFrame(self, A, B):
-        #from A to B
-        list_A = self._RecurSearchTree(A, ['origin'])
-        list_B = self._RecurSearchTree(B, list_A)
+    def SearchTwoFrame(self, A, B):
+        list_A = self._RecursiveSearch(A, ['origin'])
+        list_B = self._RecursiveSearch(B, list_A)
         list = [[], [], []]
 
         T = np.eye(4)
         for i in range(len(list_A) - 1, list_A.index(list_B[0]), -1):
             list[0].append(list_A[i])
-            T_T = self.Tree.dict[list_A[i]].Inverse_Matrix(self.Tree.dict[list_A[i]].T)
-            T = T.dot(T_T)
 
         list[1].append(list_B[0])
         for i in range(1, len(list_B)):
             list[2].append(list_B[i])
-            T = T.dot(self.Tree.dict[list_B[i]].T)
-        return T, list
+
+        return list
+
+    def Dis2T(self, list):
+        T = np.eye(4)
+        for name in list[0]:
+            T_T = self.Tree.dict[name].Inverse()
+            T = T.dot(T_T)
+
+        for name in list[2]:
+            T = T.dot(self.Tree.dict[name].m())
+
+        return Frame().ResetMat(T)
+
+    def TwoFrame(self, A, B):
+        #from A to B
+        list = self.SearchTwoFrame(A, B)
+
+        return self.Dis2T(list), list
