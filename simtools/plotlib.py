@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from ..simtools import *
 
@@ -15,15 +16,9 @@ def PlotFrame(ax, frame, name=None):
     yhat = np.array([0, s.arrow_len, 0])
     zhat = np.array([0, 0, s.arrow_len])
 
-
-    rz = frame.rpy()[2]
-    # BUG: Orientation
-    R = np.array([[math.cos(rz), -math.sin(rz), 0],
-                  [math.sin(rz), math.cos(rz), 0],
-                  [0, 0, 1]])
-    new_xhat = R.dot(xhat)
-    new_yhat = R.dot(yhat)
-    new_zhat = R.dot(zhat)
+    new_xhat = frame.Ro().dot(xhat)
+    new_yhat = frame.Ro().dot(yhat)
+    new_zhat = frame.Ro().dot(zhat)
 
     plt.quiver(*origin, *new_xhat, color='r')
     plt.quiver(*origin, *new_yhat, color='g')
@@ -32,30 +27,23 @@ def PlotFrame(ax, frame, name=None):
         ax.text(origin[0] + 0.02, origin[1], origin[2], name)
 
 def PlotHeading(frame, T):
-    s = Setting()
     origin = frame.pos()
-    trans = T.pos()
+    vector = T.pos()
+    vector = frame.Ro().dot(vector)
+    plt.quiver(*origin, *vector, color='y', arrow_length_ratio=0.05)
 
-    # BUG: Orientation
-    theta = frame.rpy() + T.rpy()
-    len = math.sqrt(trans[0]**2 + trans[1]**2 + trans[2]**2)
-    translation = np.array([len*np.cos(theta), len*np.sin(theta)])
-    plt.quiver(*origin, *translation, color='y')
-
-def PlotPose(pos, orien, name=None):
+def PlotPose(ax, pos, orien, name=None):
     s = Setting()
     origin = np.array([pos[0], pos[1], pos[2]])
     xhat = np.array([s.arrow_len, 0, 0])
     yhat = np.array([0, s.arrow_len, 0])
     zhat = np.array([0, 0, s.arrow_len])
 
-    # BUG: Orientation
-    R = np.array([[math.cos(rz), -math.sin(rz), 0],
-                  [math.sin(rz), math.cos(rz), 0],
-                  [0, 0, 1]])
-    new_xhat = R.dot(xhat)
-    new_yhat = R.dot(yhat)
-    new_zhat = R.dot(zhat)
+    Ro = TF.Euler2RoMat(orien)
+
+    new_xhat = Ro.dot(xhat)
+    new_yhat = Ro.dot(yhat)
+    new_zhat = Ro.dot(zhat)
 
     plt.quiver(*origin, *new_xhat, color='r')
     plt.quiver(*origin, *new_yhat, color='g')
@@ -64,16 +52,13 @@ def PlotPose(pos, orien, name=None):
         ax.text(origin[0] + 0.02, origin[1], origin[2], name)
 
 def PlotPoseHeading(orig, orien, trans):
-    s = Setting()
-    origin = np.array([orig[0], orig[1]])
+    frame = Frame(orig, orien)
+    origin = frame.pos()
+    vector = np.array([trans[0][3], trans[1][3], trans[2][3]])
+    vector = frame.Ro().dot(vector)
+    plt.quiver(*origin, *vector, color='y', arrow_length_ratio=0.05)
 
-    # BUG: Orientation
-    theta = orien[2] + math.atan2(trans[1][3], trans[0][3])
-    len = math.sqrt(trans[0][3]**2 + trans[1][3]**2) - s.head_length
-    translation = np.array([len*np.cos(theta), len*np.sin(theta)])
-    plt.arrow(*origin, *translation, head_width=s.head_width, head_length=s.head_length, color='y')
-
-def PlotTree(name='origin', T=None):
+def PlotTree(ax, name='origin', T=None):
     tf = Tree()
     if T is None:
         T = np.eye(4)
@@ -81,16 +66,16 @@ def PlotTree(name='origin', T=None):
     for i in tf.Tree.tree[name]:
         if i:
             total_trans = T.dot(tf.Node(name).m())
-            PlotTree(i, total_trans)
+            PlotTree(ax, i, total_trans)
 
     pose = T.dot(tf.Node(name).m())
-    pose_pos = np.array([pose[0][3], pose[1][3]])
-    pose_orien = np.array([math.atan2(pose[2][1], pose[2][2]), -math.asin(pose[2][0]), math.atan2(pose[1][0], pose[0][0])])
-    PlotPose(pose_pos, pose_orien, name)
+    pose_pos = np.array([pose[0][3], pose[1][3], pose[2][3]])
+    pose_orien = TF.RoMat2Euler(pose)
+    PlotPose(ax, pose_pos, pose_orien, name)
 
     head = T
-    head_pos = np.array([head[0][3], head[1][3]])
-    head_orien = np.array([math.atan2(head[2][1], head[2][2]), -math.asin(head[2][0]), math.atan2(head[1][0], head[0][0])])
+    head_pos = np.array([head[0][3], head[1][3], head[2][3]])
+    head_orien = TF.RoMat2Euler(head)
     if (tf.Node(name).m() == np.eye(4)).all():
         return
     PlotPoseHeading(head_pos, head_orien, tf.Node(name).m())

@@ -5,14 +5,26 @@ from enum import Enum
 
 class t:
     #class for share time, update in Time class
-    step = 0.0
-    timespace = []
+    s_step = 0
+    ns_step = 0
+    count = 0
+    s = []
+    ns = []
 
     def now(self):
-        if (self.timespace):
-            return self.timespace[-1]
+        if (self.s):
+            return self.s[-1] + (self.ns[-1] / 1.e9)
         else:
             return None
+
+    def timespace(self):
+        if (self.s):
+            return np.array(self.s) + (np.array(self.ns) / 1.e9)
+        else:
+            return None
+
+    def step(self):
+        return self.s_step + (self.ns_step / 1.e9)
 
 class a6(Enum):
     x  = 0
@@ -28,56 +40,57 @@ class Time:
     # Simulation Time
     # step: floating point in sec
 
-    def __init__(self, step, end_time = None):
-        self._s_step = 0
-        self._ns_step = 0
-        self.count = 0
+    def __init__(self, step):
         self.time = t()
-        if (end_time is not None):
-            self._end_time = float(end_time)
         self.SetTick(step)
-        self.Reset()
 
     def Reset(self):
-        self._s = 0
-        self._ns = 0
-        self.count = 0
-        self.time.timespace.clear()
+        t.count = 0
+        self.time.s.clear()
+        self.time.ns.clear()
 
-    def SetTick(self, step = None):
-        if (step is not None):
-            self._step = float(step)
-        t.step = self._step
-        self._s_step = np.round(self._step)
-        self._ns_step = (self._step - self._s_step)*1e9
+    def SetTick(self, step):
+        if (step <= 0.0):
+            raise AssertionError('Step <= 0.0')
+        t.s_step = np.round(float(step))
+        t.ns_step = (float(step) - t.s_step)*1e9
 
-    def Offline(self, end_time = None):
+    def Offline(self, end_time):
         # end_time: floating point of end time in sec, -1 is infinity for Online tick, Offline return error
-        if (end_time is not None):
-            self._end_time = float(end_time)
-        if (self._end_time < 0.0 or self._end_time is None or (self._s_step == 0 and self._ns_step == 0)):
-            raise RuntimeError('Offline mode end time < 0.0')
-        self.Reset()
-        [self.Tick() for _ in range( int(math.ceil(self._end_time/self._step))+1 )]
-        return np.array(self.time.timespace)
+        if (end_time < 0.0):
+            raise AssertionError('Offline mode end time < 0.0')
+        if (end_time > self.now()):
+            step = self.step()
+
+            start = self.now()
+            if (start > 0.0):
+                start += step
+            if (np.around(math.fmod(end_time+start, step), 9) == 0.0):
+                end_time = end_time + self.step()/2.0
+            else:
+                end_time = end_time + self.step()
+            [self.Tick() for _ in np.arange(start, end_time, step)]
+        return self.timespace()
 
     def Tick(self):
-        if (not self.time.timespace):
-            self.time.timespace.append(0.0)
+        if (not self.time.s):
+            self.time.s.append(0)
+            self.time.ns.append(0)
         else:
-            self.count += 1
-            self._s += self._s_step
-            self._ns += self._ns_step
-            if (self._ns > 1e9):
-                self._s += 1
-                self._ns -= 1e9
-            self.time.timespace.append( np.round( self._s + self._ns / 1e9, 9) )
+            t.count += 1
+            s = self.time.s[-1] + t.s_step
+            ns = self.time.ns[-1] + t.ns_step
+            if (ns > 1e9):
+                s += 1
+                ns -= 1e9
+            self.time.s.append(s)
+            self.time.ns.append(ns)
 
-    def T(self):
-        return self._step
+    def step(self):
+        return self.time.step()
 
     def Len(self):
-        return len(self.time.timespace)
+        return len(self.time.s)
 
     def now(self):
         if (self.time.now() is None):
@@ -85,7 +98,10 @@ class Time:
         return self.time.now()
 
     def timespace(self):
-        return self.time.timespace
+        return self.time.timespace()
+
+    def count(self):
+        return t.count
 
 
 ###
@@ -99,7 +115,7 @@ class Block(object):
     def Reset(self):
         self._k = -1
         self._f = None
-        self._T = self._time.step
+        self._T = self._time.step()
         self._t = np.array([])
 
     def SetHz(self, Hz):
@@ -118,7 +134,7 @@ class Block(object):
         if (self._time.now() is None):
             return None
 
-        if (self._T == t.step):
+        if (self._T == self._time.step()):
             n = int(self._time.now()/self._T)
             self._t = np.append(self._t, self._time.now())
             self._k = n
@@ -161,11 +177,13 @@ class Block(object):
 
 ###
 # quaternion:
-#Yan-Bin Jia, "Quaternions and Rotations" https://www.weizmann.ac.il/sci-tea/benari/sites/sci-tea.benari/files/uploads/softwareAndLearningMaterials/quaternion-tutorial-2-0-1.pdf
-#Moti Ben-Ari, "A Tutorial on Euler Angles and Quaternions" http://graphics.stanford.edu/courses/cs348a-17-winter/Papers/quaternion.pdf
-#K.Groÿekatthöfer, Z.Yoon, "Intro ductionintoquaternionsforspacecraftattituderepresentation" http://www.tu-berlin.de/fileadmin/fg169/miscellaneous/Quaternions.pdf
+# S.Saraband, F.Thomas, "Accurate Computation ofQuaternions from Rotation Matrices" http://www.iri.upc.edu/files/scidoc/2068-Accurate-Computation-of-Quaternions-from-Rotation-Matrices.pdf
+# Yan-Bin Jia, "Quaternions and Rotations" https://www.weizmann.ac.il/sci-tea/benari/sites/sci-tea.benari/files/uploads/softwareAndLearningMaterials/quaternion-tutorial-2-0-1.pdf
+# Moti Ben-Ari, "A Tutorial on Euler Angles and Quaternions" http://graphics.stanford.edu/courses/cs348a-17-winter/Papers/quaternion.pdf
+# K.Groÿekatthöfer, Z.Yoon, "Intro ductionintoquaternionsforspacecraftattituderepresentation" http://www.tu-berlin.de/fileadmin/fg169/miscellaneous/Quaternions.pdf
 class TF(object):
-    # Z-Y-X
+    # Euler: Z-Y-X
+    # Quat: [w x y z]
     def Euler2Quat(orien):
         Qx = np.array([math.cos(orien[2]/2.), math.sin(orien[2]/2.), 0.0, 0.0])
         Qy = np.array([math.cos(orien[1]/2.), 0.0, math.sin(orien[1]/2.), 0.0])
@@ -174,7 +192,7 @@ class TF(object):
         return Q
 
     def RoMat2Quat(m):
-        q0 = math.sqrt((m[0][0] + m[1][1] + m[2][2] + 1.)/2.)
+        q0 = math.sqrt( (m[0][0] + m[1][1] + m[2][2] + 1.) ) /2.
         tmp = 4.*q0
         q1 = (m[2][1] - m[1][2])/tmp
         q2 = (m[0][2] - m[2][0])/tmp
@@ -326,6 +344,9 @@ class Frame(object):
         return TF.RoMat2Euler(self._m[-1])
     def quat(self):
         return TF.RoMat2Quat(self._m[-1])
+    def Ro(self):
+        m34 = np.eye(3, 4);m43 = np.eye(4, 3)
+        return m34.dot(self._m[-1]).dot(m43)
 
 
 ###

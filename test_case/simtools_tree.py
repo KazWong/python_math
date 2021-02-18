@@ -1,18 +1,18 @@
 import numpy as np
 import math
-import matplotlib.pyplot as plt
+
 from ..simtools import *
 from ..simtools.plotlib import *
 
 sampling_rate = 1000.;end_time = 5.
 clock = Time(1./sampling_rate)
 
-plt.figure()
-plt.xlabel('x')
-plt.ylabel('y')
-plt.gca().set_aspect('equal')        # Set aspect ratio
-plt.xlim(-8, 8)                    # Set x-axis range
-plt.ylim(-8, 8)                    # Set y-axis range
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+
 
 
 ### TF Tree
@@ -59,7 +59,7 @@ r0_w0_rpy = r0_w0_orig.rpy()
 #print(T)
 
 tf.AddNode('r1_w0_2', Frame( np.array([r1_w0_pos[0] + 1.0, r1_w0_pos[1], 0.0]), r1_w0_orig.rpy() ))
-PlotFrame(tf.Node('r1_w0_2'), 'r1_w0_2_1')
+PlotFrame(ax, tf.Node('r1_w0_2'), 'r1_w0_2_1')
 PlotPoseHeading(tf.Node('r1_w0_2').pos(), tf.Node('r1_w0_2').rpy(), T.m())
 tf.Node('r1_w0_2').dot(T)
 
@@ -69,20 +69,21 @@ print('TREE tf2: ', tf.Tree.tree)
 print('TREE tf2: ', tf.Tree.node)
 print()
 
-PlotFrame(r1_w0_orig, 'r1_w0')
-PlotFrame(r0_w0_orig, 'r0_w0')
-PlotFrame(tf2.Node('r1_w0_2'), 'r1_w0_2_2')
+PlotFrame(ax, r1_w0_orig, 'r1_w0')
+PlotFrame(ax, r0_w0_orig, 'r0_w0')
+PlotFrame(ax, tf2.Node('r1_w0_2'), 'r1_w0_2_2')
 
 PlotHeading(r1_w0_orig, T)
 
-plt.figure()
-plt.xlabel('x')
-plt.ylabel('y')
-plt.gca().set_aspect('equal')        # Set aspect ratio
-plt.xlim(-10, 10)                    # Set x-axis range
-plt.ylim(-10, 10)                    # Set y-axis range
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+ax.set_xlim3d(-2, 2)
+ax.set_ylim3d(-2, 2)
+ax.set_zlim3d(-2, 2)
 
-PlotTree()
-
+PlotTree(ax)
 
 plt.show()

@@ -28,8 +28,8 @@ fig = plt.figure()
 plt.xlabel('x')
 plt.ylabel('y')
 ax = fig.gca(projection='3d')
-#PlotTree()
-PlotFrame(ax, tf.Node('base_footprint'), 'base_footprint')
+PlotTree(ax)
+#PlotFrame(ax, tf.Node('base_footprint'), 'base_footprint')
 
 
 x0 = [0., 0., 0., 0.]
