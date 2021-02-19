@@ -12,6 +12,55 @@ print('Frame & TF:')
 
 TEST_COUNT = 0
 
+### TF Function
+print('\tTest TF function\t', end =" ");TEST_COUNT += 1
+ro_rx = np.array([ [-1.0,  0.0,  0.0],
+                   [ 0.0, -1.0,  0.0],
+                   [ 0.0,  0.0,  1.0]])
+ro_mm = np.array([ [ 0.1368536, -0.7023747,  0.6985277],
+                   [ 0.8668462,  0.4261976,  0.2587148],
+                   [-0.4794255,  0.5701100,  0.6671775]])
+mm_aa = np.array([ [ 3.0, -2.0,  4.0],
+                   [ 1.0,  0.0,  2.0],
+                   [ 0.0,  1.0,  0.0]])
+aa_mm = np.array([ [ 1.0, -2.0,  2.0],
+                   [ 0.0,  0.0,  1.0],
+                   [-0.5,  1.5, -1.0]])
+
+if ( (np.around(TF.Euler2Quat(np.array([0.5, 1.2, 0.13])), 7) != np.array([0.807063, 0.1682243, 0.5591969, -0.0874573])).any() ):
+    print('TF: Fail in ', TEST_COUNT, '-1')
+    print('euler: ', np.array([0.5, 1.2, 0.13]))
+    print('Euler2Quat:  ', np.around(TF.Euler2Quat(np.array([0.5, 1.2, 0.13])), 7))
+    print('quat: ', np.array([0.807063, 0.1682243, 0.5591969, -0.0874573]))
+    raise AssertionError()
+if ( (TF.RoMat2Quat(ro_rx) != np.array([0.0, 0.0, 0.0, 1.0])).any() ):
+    print('TF: Fail in ', TEST_COUNT, '-2')
+    print('RoMat:  ', TF.RoMat2Quat(ro_rx))
+    print('quat: ', np.array([0.0, 0.0, 0.0, 1.0]))
+    raise AssertionError()
+if ( (np.around(TF.RoMat2Euler(ro_rx), 7) != np.array([0.0, 0.0, 3.1415927])).any() ):
+    print('TF: Fail in ', TEST_COUNT, '-3')
+    print('RoMat:  ', np.around(TF.RoMat2Euler(ro_rx), 7))
+    print('euler: ', np.array([0.0, 0.0, 3.1415927]))
+    raise AssertionError()
+if ( (np.around(TF.Quat2RoMat(np.array([0.7466975, 0.1042575, 0.3943877, 0.5253871])), 7) != ro_mm).any() ):
+    print('TF: Fail in ', TEST_COUNT, '-4')
+    print('RoMat: ', np.around(TF.Quat2RoMat(np.array([0.7466975, 0.1042575, 0.3943877, 0.5253871])), 7))
+    print('RoMat:  ', ro_mm)
+    raise AssertionError()
+if ( (np.around(TF.Euler2RoMat(np.array([0.70710667, 0.5, 1.41421343])), 7) != ro_mm).any() ):
+    print('TF: Fail in ', TEST_COUNT, '-5')
+    print('RoMat: ', np.around(TF.Euler2RoMat(np.array([0.70710667, 0.5, 1.41421343])), 7))
+    print('RoMat:  ', ro_mm)
+    raise AssertionError()
+if ( (np.around(TF.Inverse(mm_aa), 2) != aa_mm).any() ):
+    print('TF: Fail in ', TEST_COUNT, '-6')
+    print('RoMat: ', mm_aa)
+    print('RoMat: ', np.around(TF.Inverse(mm_aa), 2))
+    print('RoMat:  ', aa_mm)
+    raise AssertionError()
+print('Pass')
+
 ### Frame init & output
 print('\tTest Frame init output\t', end =" ");TEST_COUNT += 1
 origin = Frame()
@@ -164,9 +213,9 @@ if ( (t1.rpy() != np.array([0.0, 0.0, 0.0])).any() ):
     raise AssertionError()
 tr = Frame().ResetMat(ro_rx)
 t1.dot(tr)
-t1_tr = np.array([ [ 1.0,  0.0,  0.0, 1.0],
-                   [ 0.0,  1.0,  0.0, 0.0],
-                   [ 0.0,  0.0,  1.0, 0.0],
+t1_tr = np.array([ [-1.0,  0.0,  0.0, 2.0],
+                   [ 0.0, -1.0,  0.0, 2.0],
+                   [ 0.0,  0.0,  1.0, 2.0],
                    [ 0.0,  0.0,  0.0, 1.0] ])
 if ( (t1.pos() != np.array([2.0, 2.0, 2.0])).any() ):
     print('Frame: Fail in ', TEST_COUNT, '-11')
@@ -175,6 +224,11 @@ if ( (t1.pos() != np.array([2.0, 2.0, 2.0])).any() ):
     raise AssertionError()
 if ( (np.around(t1.rpy(), 7) != np.array([0.0, 0.0, 3.1415927])).any() ):
     print('Frame: Fail in ', TEST_COUNT, '-12')
+    print('t1:  ', t1.rpy())
+    print('rpy: ', np.array([0.0, 0.0, 3.1415927]))
+    raise AssertionError()
+if ( (np.around(t1.m(), 7) != t1_tr).any() ):
+    print('Frame: Fail in ', TEST_COUNT, '-13')
     print('t1:  ', t1.rpy())
     print('rpy: ', np.array([0.0, 0.0, 3.1415927]))
     raise AssertionError()

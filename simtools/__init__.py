@@ -183,12 +183,16 @@ class Block(object):
 # K.Groÿekatthöfer, Z.Yoon, "Intro ductionintoquaternionsforspacecraftattituderepresentation" http://www.tu-berlin.de/fileadmin/fg169/miscellaneous/Quaternions.pdf
 class TF(object):
     # Euler: Z-Y-X
-    # Quat: [w x y z]
     def Euler2Quat(orien):
-        Qx = np.array([math.cos(orien[2]/2.), math.sin(orien[2]/2.), 0.0, 0.0])
-        Qy = np.array([math.cos(orien[1]/2.), 0.0, math.sin(orien[1]/2.), 0.0])
-        Qz = np.array([math.cos(orien[0]/2.), 0.0, 0.0, math.sin(orien[0]/2.)])
-        Q  = np.array(Qz.dot(Qy)).dot(Qx)
+        Qx = np.array([[math.cos(orien[0]/2.), 0., 0.], [math.sin(orien[0]/2.), 0.0,                   0.0]])
+        Qy = np.array([[math.cos(orien[1]/2.), 0., 0.], [0.0,                   math.sin(orien[1]/2.), 0.0]])
+        Qz = np.array([[math.cos(orien[2]/2.), 0., 0.], [0.0,                   0.0,                   math.sin(orien[2]/2.)]])
+
+        ### Quaternion product
+        Qzy = np.array([np.array([Qz[0][0]*Qy[0][0] - Qz[1].dot(Qy[1]), 0., 0.]), np.array([Qz[0][0]*Qy[1] + Qy[0][0]*Qz[1] + np.cross(Qz[1], Qy[1])])])
+        Q = np.array([Qzy[0][0]*Qx[0][0] - Qzy[1].dot(Qx[1])])
+        Q = np.append(Q, Qzy[0][0]*Qx[1] + Qx[0][0]*Qzy[1] + np.cross(Qzy[1], Qx[1]))
+
         return Q
 
     def RoMat2Quat(m):
@@ -226,9 +230,9 @@ class TF(object):
     def Quat2RoMat(quat):
         #homogeneous expression
         q = quat
-        Ro = np.array([ [q[0]**2 + q[1]**2 - 0.5, q[1]*q[2] - q[0]*q[3], q[0]*q[2] - q[1]*q[3] ],
-                        [q[0]*q[3] - q[1]*q[2], q[0]**2 + q[2]**2 - 0.5, q[2]*q[3] - q[0]*q[1] ],
-                        [q[1]*q[3] - q[0]*q[2], q[0]*q[1] - q[2]*q[3], q[0]**2 + q[3]**2 - 0.5 ] ])
+        Ro = np.array([ [q[0]**2 + q[1]**2 - 0.5, q[1]*q[2] - q[0]*q[3], q[1]*q[3] + q[0]*q[2] ],
+                        [q[1]*q[2] + q[0]*q[3], q[0]**2 + q[2]**2 - 0.5, q[2]*q[3] - q[0]*q[1] ],
+                        [q[1]*q[3] - q[0]*q[2], q[2]*q[3] + q[0]*q[1], q[0]**2 + q[3]**2 - 0.5 ] ])
         return 2*Ro
 
     def Euler2RoMat(ro):
