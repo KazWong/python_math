@@ -192,11 +192,29 @@ class TF(object):
         return Q
 
     def RoMat2Quat(m):
-        q0 = math.sqrt( (m[0][0] + m[1][1] + m[2][2] + 1.) ) /2.
-        tmp = 4.*q0
-        q1 = (m[2][1] - m[1][2])/tmp
-        q2 = (m[0][2] - m[2][0])/tmp
-        q3 = (m[1][0] - m[0][1])/tmp
+        eff = 0.0
+
+        tmp = m[0][0] + m[1][1] + m[2][2]
+        if (tmp > eff):
+            q0 = math.sqrt( (1. + tmp) ) /2.
+        else:
+            q0 = math.sqrt( ( (m[2][1]-m[1][2])**2 + (m[0][2]-m[2][0])**2 + (m[1][0]-m[0][1])**2 )/(3. - tmp) ) /2.
+        tmp = m[0][0] - m[1][1] - m[2][2]
+        if (tmp > eff):
+            q1 = math.sqrt( (1. + tmp) ) /2.
+        else:
+            q1 = math.sqrt( ( (m[2][1]-m[1][2])**2 + (m[0][1]+m[1][0])**2 + (m[2][0]+m[0][2])**2 )/(3. - tmp) ) /2.
+        tmp = -m[0][0] + m[1][1] - m[2][2]
+        if (tmp > eff):
+            q2 = math.sqrt( (1. + tmp) ) /2.
+        else:
+            q2 = math.sqrt( ( (m[0][2]-m[2][0])**2 + (m[0][1]+m[1][0])**2 + (m[1][2]+m[2][1])**2 )/(3. - tmp) ) /2.
+        tmp = -m[0][0] - m[1][1] + m[2][2]
+        if (tmp > eff):
+            q3 = math.sqrt( (1. + tmp) ) /2.
+        else:
+            q3 = math.sqrt( ( (m[1][0]-m[0][1])**2 + (m[2][0]+m[0][2])**2 + (m[2][1]+m[1][2])**2 )/(3. - tmp) ) /2.
+
         return np.array([q0, q1, q2, q3])
 
     def RoMat2Euler(m):
