@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import sys
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from ..dynamic_systems.motion import Translation1D, Rotation1D
@@ -235,3 +236,58 @@ if ( (np.around(t1.m(), 7) != t1_tr).any() ):
 tr = Frame().ResetMat(ro_rx)
 
 print('Pass')
+
+print()
+
+
+### set plot
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+
+ax.set_xlim(-1, 1)
+ax.set_ylim(-1, 1)
+ax.set_zlim(-1, 1)
+
+x0 = Frame([0., 0., 0.], [0., 0., 0.])
+xx0 = Frame([0., 0., 0.], [0., 0., 0.])
+x1 = Frame([1., 0., 0.], [0., 0., 0.])
+x2 = Frame([-1., 0., 0.], [0., 0., 0.])
+x3 = Frame([0., -1., 0.], [0., 0., 0.])
+dx = [0.5, 0.0, 0.0]
+dxx = [0.5, 0.2, 0.0]
+r0 = [0.0, 0.0, 0.0]
+r = [0.0, 0.0, -math.pi/4]
+
+#Frame(x1.pos(), x1.rpy())
+#Frame(x2.pos(), x2.rpy())
+#Frame(x3.pos(), x3.rpy())
+
+PlotFrame(ax, x0)
+plt.scatter(x0.x(), x0.y(), c='r', s=10.0)
+
+x0.Translate(dx)
+PlotPose(ax, x0.pos(), x0.rpy())
+plt.scatter(x0.x(), x0.y(), c='b', s=10.0)
+
+x0.RotateYaw(r[2])
+PlotFrame(ax, x0)
+plt.scatter(x0.x(), x0.y(), c='g', s=10.0)
+
+x0.Translate(dx)
+PlotPose(ax, x0.pos(), x0.rpy())
+plt.scatter(x0.x(), x0.y(), c='g', s=10.0)
+
+xx0.Transformation(dxx, r)
+PlotFrame(ax, xx0)
+plt.scatter(xx0.x(), xx0.y(), c='m', s=10.0)
+
+xx0.Transformation(dxx, r)
+PlotPose(ax, xx0.pos(), xx0.rpy())
+plt.scatter(xx0.x(), xx0.y(), c='m', s=10.0)
+
+if (len(sys.argv) > 1):
+    if (bool(sys.argv[1]) is True):
+        plt.show()

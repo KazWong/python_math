@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import sys
 import matplotlib.pyplot as plt
 from ..simtools import *
 
@@ -187,3 +188,7 @@ plt.plot(x, y, label="y")
 plt.plot(x, yy, label="In y")
 plt.plot(x, dydx, label="dydx")
 plt.legend()
+
+if (len(sys.argv) > 1):
+    if (bool(sys.argv[1]) is True):
+        plt.show()

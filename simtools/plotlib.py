@@ -9,20 +9,22 @@ class Setting:
     head_width = 0.02
     head_length = 1.5 * head_width
 
+def SetPlotOrigin(ax, pos, range):
+    ax.set_xlim(pos[0]-range,pos[0]+range)
+    ax.set_ylim(pos[1]-range,pos[1]+range)
+    ax.set_zlim(pos[2]-range,pos[2]+range)
+
 def PlotFrame(ax, frame, name=None):
     s = Setting()
     origin = frame.pos()
-    xhat = np.array([s.arrow_len, 0, 0])
-    yhat = np.array([0, s.arrow_len, 0])
-    zhat = np.array([0, 0, s.arrow_len])
 
-    new_xhat = frame.Ro().dot(xhat)
-    new_yhat = frame.Ro().dot(yhat)
-    new_zhat = frame.Ro().dot(zhat)
+    xhat = frame.Ro().dot(np.array([s.arrow_len, 0, 0]))
+    yhat = frame.Ro().dot(np.array([0, s.arrow_len, 0]))
+    zhat = frame.Ro().dot(np.array([0, 0, s.arrow_len]))
 
-    plt.quiver(*origin, *new_xhat, color='r')
-    plt.quiver(*origin, *new_yhat, color='g')
-    plt.quiver(*origin, *new_zhat, color='b')
+    plt.quiver(*origin, *xhat, color='r')
+    plt.quiver(*origin, *yhat, color='g')
+    plt.quiver(*origin, *zhat, color='b')
     if (name):
         ax.text(origin[0] + 0.02, origin[1], origin[2], name)
 
@@ -35,19 +37,15 @@ def PlotHeading(frame, T):
 def PlotPose(ax, pos, orien, name=None):
     s = Setting()
     origin = np.array([pos[0], pos[1], pos[2]])
-    xhat = np.array([s.arrow_len, 0, 0])
-    yhat = np.array([0, s.arrow_len, 0])
-    zhat = np.array([0, 0, s.arrow_len])
-
     Ro = TF.Euler2RoMat(orien)
 
-    new_xhat = Ro.dot(xhat)
-    new_yhat = Ro.dot(yhat)
-    new_zhat = Ro.dot(zhat)
+    xhat = Ro.dot(np.array([s.arrow_len, 0, 0]))
+    yhat = Ro.dot(np.array([0, s.arrow_len, 0]))
+    zhat = Ro.dot(np.array([0, 0, s.arrow_len]))
 
-    plt.quiver(*origin, *new_xhat, color='r')
-    plt.quiver(*origin, *new_yhat, color='g')
-    plt.quiver(*origin, *new_zhat, color='b')
+    plt.quiver(*origin, *xhat, color='r')
+    plt.quiver(*origin, *yhat, color='g')
+    plt.quiver(*origin, *zhat, color='b')
     if (name):
         ax.text(origin[0] + 0.02, origin[1], origin[2], name)
 

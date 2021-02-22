@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import sys
 import matplotlib.pyplot as plt
 from ..simtools import *
 from ..simtools.gaussian import LinearGaussian, SineGaussian
@@ -172,3 +173,7 @@ plt.title("Square")
 print('Pass')
 
 print()
+
+if (len(sys.argv) > 1):
+    if (bool(sys.argv[1]) is True):
+        plt.show()

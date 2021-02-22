@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from ..dynamic_systems.motion import Translation1D
-from ..motion_profile.vaj import Motion_vaj
+from ..motion_profile.linear import VAJ
 from ..sensor.imu import Accelometer1D
 from ..simtools import *
 
@@ -17,7 +17,7 @@ T2 = 5.
 obj = Translation1D(x0)
 est = Translation1D(x0)
 accro = Accelometer1D(100., 0.001, 0.011, 0.0028)
-u0 = Motion_vaj(T1, x0[1:], xn1)
+u0 = VAJ(T1, x0[1:], xn1)
 u = [0.0, 0.0, 0.0]
 u_1 = [0.0, 0.0, 0.0]
 
@@ -31,7 +31,7 @@ while (clock.now() < T1):
     u = u_1
 
 x0 = obj.y()
-u1 = Motion_vaj(T2, x0[1:], xn)
+u1 = VAJ(T2, x0[1:], xn)
 u1.t_shift(-clock.now())
 while (clock.now() < T2+T1):
     clock.Tick()

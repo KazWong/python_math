@@ -2,7 +2,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from ..dynamic_systems.motion import Translation1D, Rotation1D
-from ..motion_profile.vaj import Motion_vaj
+from ..motion_profile.linear import XVAJ
 from ..simtools import *
 from ..simtools.plotlib import *
 
@@ -12,7 +12,7 @@ clock = Time(1./sampling_rate)
 
 #space
 tf = Tree()
-obj_3d = [Translation1D(), Translation1D(), Translation1D(), Rotation1D(), Rotation1D(), Rotation1D()] #x, y, z, rx, ry, rz
+obj_3d = [Translation1D(), Translation1D(), Translation1D()] #x, y, z, rx, ry, rz
 tf.AddNode('map', Frame( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) ))
 tf.AddNode('odom', Frame( np.array([0.3, 0.7, 0.0]), np.array([0.0, 0.0, 0.0]) ), 'map')
 tf.AddNode('base_footprint', Frame( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) ), 'odom')
@@ -31,33 +31,36 @@ ax = fig.gca(projection='3d')
 PlotTree(ax)
 #PlotFrame(ax, tf.Node('base_footprint'), 'base_footprint')
 
+T = 10.
 
-x0 = [0., 0., 0., 0.]
-xn1 = [5., 0., 0.]
-xn = [-3., 0., 0.]
-T1 = 10.
-T2 = 36.
+# x
+xx0 = [0., 0., 0., 0.]
+xxn = [10., 6., 0., 0.]
+# y
+xy0 = [0., 0., 0., 0.]
+xyn = [2., 3., 0., 0.]
+# z
+xz0 = [0., 0., 0., 0.]
+xzn = [15., 8., 0., 0.]
+# rx
+xrx0 = [0., 0., 0., 0.]
+xrxn = [0., 0., 0., 0.]
+# ry
+xry0 = [0., 0., 0., 0.]
+xryn = [0., 0., 0., 0.]
+# rz
+xrz0 = [0., 0., 0., 0.]
+xrzn = [0., 0., 0., 0.]
 
-"""
-u0 = Motion_vaj(T1, x0[1:], xn1)
-u = [0.0, 0.0, 0.0]
-u_1 = [0.0, 0.0, 0.0]
+
+u_3d = [XVAJ(T, xx0, xxn), XVAJ(T, xy0, xyn), XVAJ(T, xz0, xzn)]
 
 clock.Reset()
-while (clock.now() < T1):
+while (clock.now() < T):
     clock.Tick()
-    u_1 = u0.Update()
-    obj.Update( np.array([u_1 - u]) )
-    u = u_1
-
-x0 = obj.y()
-u1 = Motion_vaj(T2-T1, x0[1:], xn)
-u1.t_shift(-clock.now())
-while (clock.now() < T2):
-    clock.Tick()
-    u_1 = u1.Update()
-    obj.Update( np.array([u_1 - u]) )
-    u = u_1
+    u_3d[0].Update()
+    u_3d[1].Update()
+    u_3d[2].Update()
 
 y = obj.Y()
 y = y.reshape([-1, 4])
