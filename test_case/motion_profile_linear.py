@@ -15,11 +15,14 @@ print('VAJ:')
 x0 = [0., 0., 0.]
 xn = [5., 0., 0.]
 T = 10.
+shift = 5.0
+end_time = 20.
 
 x = VAJ(T, x0, xn)
 
 clock.Reset()
-while (clock.now() < T):
+clock.Offline(shift)
+while (clock.now() < end_time):
     clock.Tick()
     x.Update()
 
@@ -64,22 +67,26 @@ plt.suptitle('vaj')
 plt.subplot(411)
 plt.xlabel('t')
 plt.ylabel('pos')
-plt.plot(t1, pos)
-plt.plot(clock.timespace(), y0)
+plt.plot(t1, pos, label='ground true')
+plt.plot(x.timespace(), y0, label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 plt.subplot(412)
 plt.xlabel('t')
 plt.ylabel('vel')
-plt.plot(t1, vel)
-plt.plot(clock.timespace(), y[:,0])
+plt.plot(t1, vel, label='ground true')
+plt.plot(x.timespace(), y[:,0], label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 plt.subplot(413)
 plt.xlabel('t')
 plt.ylabel('acc')
-plt.plot(t1, acc)
-plt.plot(clock.timespace(), y[:,1])
+plt.plot(t1, acc, label='ground true')
+plt.plot(x.timespace(), y[:,1], label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 plt.subplot(414)
 plt.ylabel('jerk')
-plt.plot(t1, jerk)
-plt.plot(clock.timespace(), y[:,2])
+plt.plot(t1, jerk, label='ground true')
+plt.plot(x.timespace(), y[:,2], label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 
 
 ### XVAJ
@@ -89,11 +96,14 @@ print('XVAJ:')
 x0 = [0., 0., 0., 0.]
 xn = [10., 5., 0., 0.]
 T = 10.
+shift = 5.0
+end_time = 20.
 
 x = XVAJ(T, x0, xn)
 
 clock.Reset()
-while (clock.now() < T):
+clock.Offline(shift)
+while (clock.now() < end_time):
     clock.Tick()
     x.Update()
 
@@ -140,22 +150,26 @@ plt.suptitle('xvaj')
 plt.subplot(411)
 plt.xlabel('t')
 plt.ylabel('pos')
-plt.plot(t1, pos)
-plt.plot(clock.timespace(), y[:,0])
+plt.plot(t1, pos, label='ground true')
+plt.plot(x.timespace(), y[:,0], label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 plt.subplot(412)
 plt.xlabel('t')
 plt.ylabel('vel')
-plt.plot(t1, vel)
-plt.plot(clock.timespace(), y[:,1])
+plt.plot(t1, vel, label='ground true')
+plt.plot(x.timespace(), y[:,1], label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 plt.subplot(413)
 plt.xlabel('t')
 plt.ylabel('acc')
-plt.plot(t1, acc)
-plt.plot(clock.timespace(), y[:,2])
+plt.plot(t1, acc, label='ground true')
+plt.plot(x.timespace(), y[:,2], label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 plt.subplot(414)
 plt.ylabel('jerk')
-plt.plot(t1, jerk)
-plt.plot(clock.timespace(), y[:,3])
+plt.plot(t1, jerk, label='ground true')
+plt.plot(x.timespace(), y[:,3], label='vaj, t shift: ' + str(shift))
+plt.legend(framealpha=1, frameon=True)
 
 
 plt.show()

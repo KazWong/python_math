@@ -11,6 +11,7 @@ class VAJ(Block):
         self._xn = xn
         self.T = T
         self._t_shift = 0.0
+        self._started = False
         T2 = T*T;T3 = T2*T;T4 = T3*T;T5 = T4*T
         self._A = np.array([[1, 0,   0,    0,     0,     0],
                             [0, 1,   0,    0,     0,     0],
@@ -28,6 +29,8 @@ class VAJ(Block):
         self._x = np.array([self._x0])
         self._pos = np.array([])
         self._y = np.empty((0, 3))
+        self._t_shift = 0.0
+        self._started = False
 
     def Model(self):
         #u = [v, a, j]
@@ -47,7 +50,14 @@ class VAJ(Block):
 
     def Update(self):
         super(VAJ, self).Update_t()
-        self._y = np.append(self._y, self.Model(), axis=0)
+        if (not self._started):
+            self._t_shift = -self._t[-1]
+            self._started = True
+        if (self._t[-1] + self._t_shift <= self.T):
+            self._y = np.append(self._y, self.Model(), axis=0)
+        else:
+            self._y = np.append(self._y, np.array([self._x[-1]]), axis=0)
+            self._pos = np.append(self._pos, self._pos[-1])
         return self._y[-1]
 
     def t_shift(self, t_shift=0.0):
@@ -73,6 +83,7 @@ class XVAJ(Block):
         self._xn = xn
         self.T = T
         self._t_shift = 0.0
+        self._started = False
         T2 = T*T;T3 = T2*T;T4 = T3*T;T5 = T4*T;T6 = T5*T;T7 = T6*T
         self._A = np.array([[1., 0.,   0.,    0.,     0.,     0.,      0.,      0.],
                       [0., 1.,   0.,    0.,     0.,     0.,      0.,      0.],
@@ -91,6 +102,8 @@ class XVAJ(Block):
         super(XVAJ, self).Reset()
         self._x = np.array([self._x0])
         self._y = np.empty((0, 4))
+        self._t_shift = 0.0
+        self._started = False
 
     def Model(self):
         #u = [v, a, j]
@@ -109,7 +122,14 @@ class XVAJ(Block):
 
     def Update(self):
         super(XVAJ, self).Update_t()
-        self._y = np.append(self._y, self.Model(), axis=0)
+        if (not self._started):
+            self._t_shift = -self._t[-1]
+            self._started = True
+
+        if (self._t[-1] + self._t_shift <= self.T):
+            self._y = np.append(self._y, self.Model(), axis=0)
+        else:
+            self._y = np.append(self._y, [self._x[-1]], axis=0)
         return self._y[-1]
 
     def t_shift(self, t_shift=0.0):

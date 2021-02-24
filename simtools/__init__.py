@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import time
 from enum import Enum
 
 
@@ -46,6 +47,7 @@ class Time:
 
     def Reset(self):
         t.count = 0
+        self._rt = 0
         self.time.s.clear()
         self.time.ns.clear()
 
@@ -85,6 +87,17 @@ class Time:
                 ns -= 1e9
             self.time.s.append(s)
             self.time.ns.append(ns)
+
+    def RealTick(self):
+        if (not self.time.s):
+            self._rt = time.monotonic()
+            self.time.s.append(0)
+            self.time.ns.append(0)
+        else:
+            t.count += 1
+            rt = time.monotonic() - self._rt
+            self.time.s.append(math.floor(rt))
+            self.time.ns.append((rt - math.floor(rt))*1e9)
 
     def step(self):
         return self.time.step()
