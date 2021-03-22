@@ -1,5 +1,10 @@
 # python_math
+Dependent: protocol Buffers 3.14  
+
 simulation, algorithm, and math
+
+Compile protobuf:
+protoc --python_out=. ./tf_tree.proto
 
 Run:
 python3 -m python_math.[folder].[file]

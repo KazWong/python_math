@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from matplotlib.animation import FuncAnimation
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
 import matplotlib.pyplot as plt
@@ -67,7 +68,7 @@ def PlotTree(ax, name='origin', T=None):
     if T is None:
         T = np.eye(4)
 
-    for i in tf.Tree.tree[name]:
+    for i in tf.Tree.tree.node[name].child:
         if i:
             total_trans = T.dot(tf.Node(name).m())
             PlotTree(ax, i, total_trans)
@@ -120,7 +121,7 @@ def AniTree(ax, name='origin', T=None):
     if T is None:
         T = np.eye(4)
 
-    for i in tf.Tree.tree[name]:
+    for i in tf.Tree.tree.node[name].child:
         if i:
             total_trans = T.dot(tf.Node(name).m())
             AniTree(ax, i, total_trans)

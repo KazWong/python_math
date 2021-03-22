@@ -13,8 +13,8 @@ sampling_rate = 100.
 clock = Time(1./sampling_rate)
 
 #space
-tf = Tree()
 obj_3d = [Translation1D(), Translation1D(), Translation1D()] #x, y, z, rx, ry, rz
+tf = Tree()
 tf.AddNode('map', Frame( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) ))
 tf.AddNode('odom', Frame( np.array([0.3, 0.7, 0.0]), np.array([0.0, 0.0, 0.0]) ), 'map')
 tf.AddNode('base_footprint', Frame( np.array([0.2, 0.2, 0.0]), np.array([0.0, 0.0, 0.0]) ), 'odom')

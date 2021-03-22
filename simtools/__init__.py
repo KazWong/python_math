@@ -1,8 +1,9 @@
 import numpy as np
 import math
 import time
-from enum import Enum
+import threading
 
+from ..protobuf import tf_tree_pb2
 
 class t:
     #class for share time, update in Time class
@@ -26,14 +27,6 @@ class t:
 
     def step(self):
         return self.s_step + (self.ns_step / 1.e9)
-
-class a6(Enum):
-    x  = 0
-    y  = 1
-    z  = 2
-    rx = 3
-    ry = 4
-    rz = 5
 
 
 ###
@@ -196,6 +189,7 @@ class Block(object):
 # K.Groÿekatthöfer, Z.Yoon, "Intro ductionintoquaternionsforspacecraftattituderepresentation" http://www.tu-berlin.de/fileadmin/fg169/miscellaneous/Quaternions.pdf
 class TF(object):
     # Euler: Z-Y-X
+    # Quat: w x y z
     def Euler2Quat(orien):
         Qx = np.array([[math.cos(orien[0]/2.), 0., 0.], [math.sin(orien[0]/2.), 0.0,                   0.0]])
         Qy = np.array([[math.cos(orien[1]/2.), 0., 0.], [0.0,                   math.sin(orien[1]/2.), 0.0]])
@@ -207,6 +201,9 @@ class TF(object):
         Q = np.append(Q, Qzy[0][0]*Qx[1] + Qx[0][0]*Qzy[1] + np.cross(Qzy[1], Qx[1]))
 
         return Q
+
+    def RoMat2Tran(m):
+        return np.array([m[0][3], m[1][3], m[2][3]])
 
     def RoMat2Quat(m):
         eff = 0.0
@@ -279,6 +276,7 @@ class TF(object):
 
 class Frame(object):
     # Z-Y-X
+    # Quat: w x y z
     def __init__(self, position=(0., 0., 0.), orientation=(0., 0., 0.), timestamp=None):
         if (len(position) != 3):
             raise IOError()
@@ -293,6 +291,20 @@ class Frame(object):
         else:
             self._t = np.array([timestamp])
         self._m = np.array([m])
+        self._proto = None
+
+    def Proto(self, proto):
+        self._proto = proto
+        self._SetProto(TF.RoMat2Tran(self._m[-1]), TF.RoMat2Quat(self._m[-1]))
+
+    def _SetProto(self, pos, quat):
+        self._proto.Pos.x = pos[0]
+        self._proto.Pos.y = pos[1]
+        self._proto.Pos.z = pos[2]
+        self._proto.Quat.w = quat[0]
+        self._proto.Quat.x = quat[1]
+        self._proto.Quat.y = quat[2]
+        self._proto.Quat.z = quat[3]
 
     def ResetMat(self, m, timestamp=None):
         if timestamp is None:
@@ -300,7 +312,8 @@ class Frame(object):
         else:
             self._t = np.array([timestamp])
         self._m = np.array([m])
-
+        if self._proto:
+            self._SetProto(TF.RoMat2Tran(self._m[-1]), TF.RoMat2Quat(self._m[-1]))
         return self
 
     def dot(self, T, timestamp=None):
@@ -315,6 +328,8 @@ class Frame(object):
         else:
             self._t = np.append(self._t, timestamp)
         self._m = np.concatenate( (self._m, np.array([m])), axis=0)
+        if self._proto:
+            self._SetProto(TF.RoMat2Tran(self._m[-1]), TF.RoMat2Quat(self._m[-1]))
 
     def UpdateMat(self, m, timestamp=None):
         if ( isinstance(m, Frame) ):
@@ -325,6 +340,8 @@ class Frame(object):
         else:
             self._t = np.append(self._t, timestamp)
         self._m = np.concatenate( (self._m, np.array([m])), axis=0)
+        if self._proto:
+            self._SetProto(TF.RoMat2Tran(self._m[-1]), TF.RoMat2Quat(self._m[-1]))
 
     def UpdateTrRo(self, pos, rpy, timestamp=None):
         m = TF.TFMat(pos, TF.Euler2RoMat(rpy))
@@ -334,6 +351,8 @@ class Frame(object):
         else:
             self._t = np.append(self._t, timestamp)
         self._m = np.concatenate( (self._m, np.array([m])), axis=0)
+        if self._proto:
+            self._SetProto(TF.RoMat2Tran(self._m[-1]), TF.RoMat2Quat(self._m[-1]))
 
     def Inverse(self):
         return TF.Inverse(self._m[-1])
@@ -372,6 +391,8 @@ class Frame(object):
         return self._t
     def M(self):
         return self._m
+    def proto(self):
+        return self._proto
 
     def pos(self):
         return np.array([self._m[-1][0][3], self._m[-1][1][3], self._m[-1][2][3]])
@@ -386,34 +407,42 @@ class Frame(object):
 
 ###
 class _Tree(object):
+    tree = tf_tree_pb2.Tree()
     dict = {}
-    node = {}
-    tree = {}
+    _lock = threading.Lock()
 
 class Tree(object):
     def __init__(self):
         self.Tree = _Tree()
-        if not bool(self.Tree.tree):
+        if not bool(self.Tree.dict):
+            self.Tree._lock.acquire()
             self.Tree.dict['origin'] = Frame( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) )
-            self.Tree.node['origin'] = 'origin'
-            self.Tree.tree['origin'] = []
+            self.Tree.tree.node['origin'].parent = 'origin'
+            self.Tree.dict['origin'].Proto(self.Tree.tree.node['origin'].tf)
+            self.Tree._lock.release()
         return
 
     def Node(self, name):
         return self.Tree.dict[name]
 
     def AddNode(self, name, obj, parent='origin'):
-        if name in self.Tree.node:
+        self.Tree._lock.acquire()
+        if name in self.Tree.tree.node:
+            self.Tree._lock.release()
             return
-        self.Tree.node[name] = parent
+        self.Tree.tree.node[name].parent = parent
         self.Tree.dict[name] = obj
-        self.Tree.tree[parent].append(name)
-        self.Tree.tree[name] = []
+        self.Tree.dict[name].Proto(self.Tree.tree.node[name].tf)
+        self.Tree.tree.node[parent].child.extend([name])
+        self.Tree._lock.release()
 
     def _RecursiveSearch(self, A, B):
         list = []
         if A not in B:
-            list.extend( self._RecursiveSearch(self.Tree.node[A], B) )
+            self.Tree._lock.acquire()
+            AA = self.Tree.tree.node[A].parent
+            self.Tree._lock.release()
+            list.extend( self._RecursiveSearch(AA, B) )
             list.extend([A])
             return list
         else:
@@ -425,7 +454,8 @@ class Tree(object):
         list = [[], [], []]
 
         T = np.eye(4)
-        for i in range(len(list_A) - 1, list_A.index(list_B[0]), -1):
+        list_A_index = list_A.index(list_B[0])
+        for i in range(len(list_A) - 1, list_A_index, -1):
             list[0].append(list_A[i])
 
         list[1].append(list_B[0])
@@ -437,11 +467,15 @@ class Tree(object):
     def Dis2T(self, list):
         T = np.eye(4)
         for name in list[0]:
+            self.Tree._lock.acquire()
             T_T = self.Tree.dict[name].Inverse()
+            self.Tree._lock.release()
             T = T.dot(T_T)
 
         for name in list[2]:
+            self.Tree._lock.acquire()
             T = T.dot(self.Tree.dict[name].m())
+            self.Tree._lock.release()
 
         return Frame().ResetMat(T)
 
