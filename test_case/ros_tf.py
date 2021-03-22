@@ -41,6 +41,7 @@ def PlotRobo():
 def update(frame, axis):
     ani = Tree_Quiver()
 
+    base_footprint_orig, base_footprint_L = tf.TwoFrame('origin', 'base_footprint')
     base_footprint_orig = tf.Dis2T(base_footprint_L)
     SetPlotOrigin(axis, base_footprint_orig.pos(), 0.5)
     AniTree(axis)
@@ -93,14 +94,16 @@ if __name__ == '__main__':
     th_sim = threading.Thread(target=Sim)
     th_sim.start()
 
-    fig = plt.figure()
-    axis = fig.gca(projection='3d')
+    sync_tf = Sync_ROS_TF()
 
-    axis.set_xlabel('x')
-    axis.set_ylabel('y')
-    axis.set_zlabel('z')
-    text = axis.text2D(0.0, 0.0, str("time = " + str(clock.now())), transform=ax.transAxes)
-    anim = FuncAnimation(fig, update, fargs=(axis, ), frames=20, interval=20, blit=False)
+    fig = plt.figure()
+    #axis = fig.gca(projection='3d')
+
+    #axis.set_xlabel('x')
+    #axis.set_ylabel('y')
+    #axis.set_zlabel('z')
+    #text = axis.text2D(0.0, 0.0, str("time = " + str(clock.now())), transform=axis.transAxes)
+    #anim = FuncAnimation(fig, update, fargs=(axis, ), frames=20, interval=20, blit=False)
     plt.show()
 
     alive = False

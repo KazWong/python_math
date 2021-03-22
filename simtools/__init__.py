@@ -298,13 +298,13 @@ class Frame(object):
         self._SetProto(TF.RoMat2Tran(self._m[-1]), TF.RoMat2Quat(self._m[-1]))
 
     def _SetProto(self, pos, quat):
-        self._proto.Pos.x = pos[0]
-        self._proto.Pos.y = pos[1]
-        self._proto.Pos.z = pos[2]
-        self._proto.Quat.w = quat[0]
-        self._proto.Quat.x = quat[1]
-        self._proto.Quat.y = quat[2]
-        self._proto.Quat.z = quat[3]
+        self._proto.p.x = pos[0]
+        self._proto.p.y = pos[1]
+        self._proto.p.z = pos[2]
+        self._proto.q.w = quat[0]
+        self._proto.q.x = quat[1]
+        self._proto.q.y = quat[2]
+        self._proto.q.z = quat[3]
 
     def ResetMat(self, m, timestamp=None):
         if timestamp is None:
@@ -406,14 +406,14 @@ class Frame(object):
 
 
 ###
-class _Tree(object):
+class TTree(object):
     tree = tf_tree_pb2.Tree()
     dict = {}
     _lock = threading.Lock()
 
 class Tree(object):
     def __init__(self):
-        self.Tree = _Tree()
+        self.Tree = TTree()
         if not bool(self.Tree.dict):
             self.Tree._lock.acquire()
             self.Tree.dict['origin'] = Frame( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) )

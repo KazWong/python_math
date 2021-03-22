@@ -73,7 +73,7 @@ axis.set_ylabel('y')
 axis.set_zlabel('z')
 
 clock.Reset()
-text = axis.text2D(0.0, 0.0, str("time = " + str(clock.now())), transform=ax.transAxes)
+text = axis.text2D(0.0, 0.0, str("time = " + str(clock.now())), transform=axis.transAxes)
 
 def update(frame):
     global axis, clock, u_3d, T, obj_3d, u, x, y, z, tf, base_footprint_L, anim
