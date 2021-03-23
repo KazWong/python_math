@@ -4,3 +4,4 @@ __pycache__/
 ros/devel/
 ros/build/
 protobuf/*.py
+ros/src/joystick_drivers/

@@ -93,13 +93,17 @@ def LawOfCycle():
 
 
 if __name__ == '__main__':
+    # create tf
     RoboTF()
 
+    # the system
     th_sim = threading.Thread(target=SolarSail)
     th_sim.start()
 
+    # pipe to ros
     sync_tf = Sync_ROS_TF()
 
+    # matplotlib plot
     fig = plt.figure()
     axis = fig.gca(projection='3d')
 
@@ -110,5 +114,6 @@ if __name__ == '__main__':
     anim = FuncAnimation(fig, update, fargs=(axis, ), frames=50, interval=20, blit=False)
     plt.show()
 
+    # end
     alive = False
     th_sim.join()

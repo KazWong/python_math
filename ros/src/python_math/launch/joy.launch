@@ -1,0 +1,9 @@
+<launch>
+  <!-- joy_node -->
+  <node pkg="joy" type="joy_node" name="joy_node">
+    <param name="deadzone" value="0.1"/>
+  </node>
+
+  <!-- joy to cmd_vel -->
+  <node pkg="python_math" type="joy2cmd_vel.py" name="joy2cmd_vel"/>
+</launch>

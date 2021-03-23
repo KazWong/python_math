@@ -5,7 +5,7 @@ import struct
 import tf2_ros
 import math
 import time
-import tf_tree_pb2
+from protobuf import tf_tree_pb2
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
 import sys

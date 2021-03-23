@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from ..dynamic_systems.motion import Translation1D
-from ..motion_profile.vaj import Motion_vaj
+from ..motion_profile.linear import VAJ
 #from ..dynamic_systems.dry_air import DryAir
 from ..simtools import *
 from ..simtools.plotlib import *
@@ -16,7 +16,7 @@ T1 = 10.
 T2 = 36.
 
 obj = Translation1D(x0)
-u0 = Motion_vaj(T1, x0[1:], xn1)
+u0 = VAJ(T1, x0[1:], xn1)
 u = [0.0, 0.0, 0.0]
 u_1 = [0.0, 0.0, 0.0]
 
@@ -28,7 +28,7 @@ while (clock.now() < T1):
     u = u_1
 
 x0 = obj.y()
-u1 = Motion_vaj(T2-T1, x0[1:], xn)
+u1 = VAJ(T2-T1, x0[1:], xn)
 u1.t_shift(-clock.now())
 while (clock.now() < T2):
     clock.Tick()
@@ -64,12 +64,13 @@ plt.ylabel('jerk')
 plt.plot(clock.timespace(), y[:,3])
 
 
-x0 = Transform([0., 0., 0.], [0., 0., 0.])
+x0 = Frame( np.array([0.0, 0.0, 0.0]), np.array([0.0, 0.0, 0.0]) )
 
-plt.figure()
+fig = plt.figure()
+ax = fig.gca(projection='3d')
 for i in range(clock.Len()):
     dx = [y[i,0], 0.0, 0.0]
     x0.Translate(dx)
-    Frame(x0.pos(), x0.orien())
+    PlotPose(ax, x0.pos(), x0.rpy())
 
 plt.show()
