@@ -49,7 +49,7 @@ def update(frame, axis):
 
     return ani.tree.values()
 
-def Sim():
+def SolarSail():
     global alive
     T = 30.
     # x
@@ -86,24 +86,28 @@ def Sim():
             x = x_1
             y = y_1
             z = z_1
+        time.sleep(0.05)
+
+def LawOfCycle():
+    global alive
 
 
 if __name__ == '__main__':
     RoboTF()
 
-    th_sim = threading.Thread(target=Sim)
+    th_sim = threading.Thread(target=SolarSail)
     th_sim.start()
 
     sync_tf = Sync_ROS_TF()
 
     fig = plt.figure()
-    #axis = fig.gca(projection='3d')
+    axis = fig.gca(projection='3d')
 
-    #axis.set_xlabel('x')
-    #axis.set_ylabel('y')
-    #axis.set_zlabel('z')
-    #text = axis.text2D(0.0, 0.0, str("time = " + str(clock.now())), transform=axis.transAxes)
-    #anim = FuncAnimation(fig, update, fargs=(axis, ), frames=20, interval=20, blit=False)
+    axis.set_xlabel('x')
+    axis.set_ylabel('y')
+    axis.set_zlabel('z')
+    text = axis.text2D(0.0, 0.0, str("time = " + str(clock.now())), transform=axis.transAxes)
+    anim = FuncAnimation(fig, update, fargs=(axis, ), frames=50, interval=20, blit=False)
     plt.show()
 
     alive = False

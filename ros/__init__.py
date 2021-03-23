@@ -25,7 +25,8 @@ class Sync_ROS_TF(object):
             tree._lock.acquire()
             ss = tree.tree.SerializeToString()
             tree._lock.release()
-            s = bytes([_ ^ 0x25 for _ in ss])+ b'\n'
+            s = bytes([_ ^ 0x25 for _ in ss]) + b'\n'
+            print('pub ', tree.tree.ByteSize(), len(s), flush=True)
             self._p.stdin.write(s)
             self._p.stdin.flush()
-            time.sleep(0.1)
+            time.sleep(0.05)

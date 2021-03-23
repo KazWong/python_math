@@ -4,6 +4,7 @@ import rospy
 import struct
 import tf2_ros
 import math
+import time
 import tf_tree_pb2
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import TransformStamped
@@ -14,10 +15,8 @@ def main():
 
     tf = TransformStamped()
     tf_pub = tf2_ros.TransformBroadcaster()
-
     odom_msg = Odometry()
     odom_pub = rospy.Publisher('odom', Odometry, queue_size=1)
-
     msg = tf_tree_pb2.Tree()
 
     while not rospy.is_shutdown():
@@ -25,6 +24,12 @@ def main():
         count = 0
         for line in sys.stdin:
             s = bytearray([chr(ord(_) ^ 0x25) for _ in line.rstrip()])
+            print('sub ', len(s))
+            sys.stdout.flush()
+            if len(s) != 731:
+                continue
+            if rospy.is_shutdown():
+                exit()
             msg.ParseFromString(s)
 
             for key, value in msg.node.items():
@@ -57,11 +62,8 @@ def main():
                     odom_msg.twist.twist.linear.y  = 0.0
                     odom_msg.twist.twist.angular.z = 0.0
                     odom_pub.publish(odom_msg)
-
-                rospy.loginfo(tf)
             count += 1
-
-            rospy.sleep(0.5)
+            time.sleep(0.05)
 
 if __name__ == '__main__':
     main()
