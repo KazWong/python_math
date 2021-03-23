@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package tf_tree;
+
+message TR {
+  message Pos{
+    double x = 1;
+    double y = 2;
+    double z = 3;
+  }
+  message Quat{
+    double w = 1;
+    double x = 2;
+    double y = 3;
+    double z = 4;
+  }
+
+  Pos p = 1;
+  Quat q = 2;
+}
+
+message Node {
+  string parent = 1;
+  TR tf = 2;
+  repeated string child = 3;
+}
+
+message Tree {
+  map<string, Node> node = 1;
+}

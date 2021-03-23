@@ -3,4 +3,4 @@ __pycache__/
 *~
 ros/devel/
 ros/build/
-protobuf/*.proto
+protobuf/*.py

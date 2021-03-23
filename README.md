@@ -2,7 +2,7 @@
 simulation, algorithm, and math
 
 
-Dependent:
+Dependent:  
 numpy  
 math  
 time  
@@ -21,7 +21,7 @@ python3 -m python_math.[folder].[file]
 
 Example:
 python3 -m python_ math.test_ bench.test_plant
-  
+
 
 test_case:
 code for verify functions in simtools
